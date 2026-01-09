@@ -1,0 +1,46 @@
+# Android / Gradle / IntelliJ (VaultGuard)
+
+# Built artifacts
+*.apk
+*.ap_
+*.aab
+*.dex
+*.class
+
+# Gradle
+.gradle/
+**/.gradle/
+build/
+**/build/
+
+# Local config (never commit)
+local.properties
+
+# IntelliJ / Android Studio
+.idea/
+**/.idea/
+*.iml
+*.ipr
+*.iws
+
+# External native build
+.cxx/
+.externalNativeBuild/
+
+# Logs / temp
+*.log
+*.tmp
+*.temp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Reports: keep scripts + key human-authored reports, ignore timestamped outputs
+reports/*.txt
+reports/*.html
+!reports/*.ps1
+!reports/*.md
+!reports/RAPORT_ANALIZA_*.html
+!reports/VAULTGUARD_FINAL_STATUS_ROADMAP_LATEST.*
+

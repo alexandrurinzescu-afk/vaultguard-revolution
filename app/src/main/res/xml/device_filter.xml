@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Microdia - Cel mai comun pentru EyeCool -->
+    <usb-device vendor-id="1997" product-id="25453" /> <!-- 0x07CD 0x636D -->
+    
+    <!-- Alți producători comuni pentru scanner-e iris -->
+    <usb-device vendor-id="7247" />    <!-- 0x1C4F - SiGma Micro -->
+    <usb-device vendor-id="1155" />    <!-- 0x0483 - STMicroelectronics -->
+    <usb-device vendor-id="1208" />    <!-- 0x04B4 - Cypress Semiconductor -->
+    
+    <!-- Match generic pentru orice dispozitiv cu clase USB specifice -->
+    <usb-device class="239" subclass="2" /> <!-- USB_CLASS_MISC, common for biometrics -->
+</resources>
