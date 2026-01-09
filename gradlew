@@ -1,0 +1,20 @@
+#!/usr/bin/env sh
+
+# Gradle wrapper script for UNIX-like environments.
+# This repository is primarily Windows, but having gradlew improves portability.
+
+APP_HOME=$(cd "$(dirname "$0")" && pwd)
+
+DEFAULT_JVM_OPTS="-Xmx64m -Xms64m"
+
+if [ -n "$JAVA_HOME" ] ; then
+  JAVA_EXE="$JAVA_HOME/bin/java"
+else
+  JAVA_EXE="java"
+fi
+
+exec "$JAVA_EXE" $DEFAULT_JVM_OPTS $JAVA_OPTS $GRADLE_OPTS \
+  "-Dorg.gradle.appname=gradlew" \
+  -classpath "$APP_HOME/gradle/wrapper/gradle-wrapper.jar" \
+  org.gradle.wrapper.GradleWrapperMain "$@"
+
