@@ -32,6 +32,20 @@ Write-Info ("Project root: {0}" -f $projectRoot)
 Write-Info ("Roadmap: {0}" -f $roadmapFile)
 Write-Info ("Backups: {0}" -f $backupDir)
 
+# 0) Protocol cleanup (ironclad workflow)
+$protocolScript = Join-Path $PSScriptRoot "enforce_protocol.ps1"
+if (Test-Path -LiteralPath $protocolScript) {
+  Write-Info "Running protocol cleanup..."
+  try {
+    & $protocolScript -CurrentSubpoint $Subpoint -Operation "post-cleanup"
+  } catch {
+    Write-Err ("BACKUP BLOCKED: Protocol cleanup failed: {0}" -f $_.Exception.Message)
+    exit 1
+  }
+} else {
+  Write-Warn ("Protocol script not found (skipping): {0}" -f $protocolScript)
+}
+
 # 1) Update roadmap checkbox
 $raw = Get-Content -LiteralPath $roadmapFile -Raw -ErrorAction Stop
 

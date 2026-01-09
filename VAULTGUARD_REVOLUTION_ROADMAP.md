@@ -14,6 +14,23 @@
 
 ---
 
+## 🚨 DEVELOPMENT PROTOCOL - ABSOLUTE RULES:
+1. **NO SUBPOINT SKIPPING**: Complete each subpoint 100% before next
+2. **MANDATORY CLEANUP**: Protocol deletes temp artifacts after each subpoint
+3. **SEQUENTIAL VERIFICATION**: Protocol verifies previous completion (based on roadmap order)
+4. **AUTO-BACKUP**: Backup after every subpoint completion
+5. **CLEAN STATE**: Project must be production-clean at each checkpoint
+
+## 🔧 EXECUTION WORKFLOW:
+1. For subpoint X.Y.Z run: `scripts/execute_subpoint.ps1 -Subpoint "X.Y.Z" -Description "..."`
+2. Protocol checks previous subpoint completion + clean state
+3. Implement ONLY the specified subpoint
+4. Test until 100% functional
+5. Run `scripts/backup_after_subpoint.ps1` (protocol cleanup is executed automatically)
+6. Only then proceed to next subpoint
+
+---
+
 # CAPITOL 1: FAZA 1 - FUNDATIE & SETUP
 
 ## 1.1 PROIECT INITIALIZARE
