@@ -107,11 +107,12 @@ if (-not (Test-PhaseDependency -Chapter $Chapter -Subpoint $Subpoint -RoadmapTex
 # Match lines like: - [ ] 1.1.5 ...
 # Allow any state marker (space, x, ~, !) and normalize to [x].
 # Replace only the first match for the given subpoint.
-$pattern = "(?m)^-\\s*\\[( |~|!|x|X)\\]\\s+" + [regex]::Escape($Subpoint) + "\\b"
+# NOTE: Use \s (not \\s) so regex matches whitespace in PowerShell string literals.
+$pattern = "(?m)^-\s*\[( |~|!|x|X)\]\s+" + [regex]::Escape($Subpoint) + "\b"
 if ($raw -match $pattern) {
   $raw2 = [regex]::Replace($raw, $pattern, ("- [x] " + $Subpoint), 1)
   Set-Content -LiteralPath $roadmapFile -Value $raw2 -Encoding UTF8
-  Write-Ok ("Roadmap updated: marked {0} as completed." -f $Subpoint)
+  Write-Ok ("Roadmap updated: ensured {0} is marked as completed." -f $Subpoint)
 } else {
   Write-Warn ("Roadmap checkbox not found for subpoint {0}. No change made." -f $Subpoint)
 }
