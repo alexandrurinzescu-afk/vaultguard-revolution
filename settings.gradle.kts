@@ -12,5 +12,5 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = "VaultGuard"
+rootProject.name = "VaultGuardRevolution"
 include(":app")

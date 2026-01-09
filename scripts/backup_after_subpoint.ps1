@@ -35,6 +35,61 @@ Write-Info ("Backups: {0}" -f $backupDir)
 # 1) Update roadmap checkbox
 $raw = Get-Content -LiteralPath $roadmapFile -Raw -ErrorAction Stop
 
+# Enhanced dependency checking (sequential phases)
+function Test-PhaseDependency {
+  param(
+    [Parameter(Mandatory = $true)][string]$Chapter,
+    [Parameter(Mandatory = $true)][string]$Subpoint,
+    [Parameter(Mandatory = $true)][string]$RoadmapText
+  )
+
+  $chapterMajor = ($Chapter -split "\\.")[0]
+
+  function Test-GroupComplete([string]$prefix) {
+    $any = ([regex]::Matches($RoadmapText, ("(?m)^- \\[[xX]\\] " + [regex]::Escape($prefix)))).Count
+    $incomplete = ([regex]::Matches($RoadmapText, ("(?m)^- \\[(?![xX]\\])[^\\]]\\] " + [regex]::Escape($prefix)))).Count
+    return ($any -gt 0) -and ($incomplete -eq 0)
+  }
+
+  # Chapter 3 sequential dependencies
+  if ($chapterMajor -eq "3") {
+    if ($Subpoint -match "^3\\.2") {
+      if (-not (Test-GroupComplete "3.1.")) {
+        Write-Err "BLOCKED: 3.2 requires 3.1 complete"
+        return $false
+      }
+    }
+    if ($Subpoint -match "^3\\.3") {
+      if (-not (Test-GroupComplete "3.2.")) {
+        Write-Err "BLOCKED: 3.3 requires 3.2 complete"
+        return $false
+      }
+    }
+    if ($Subpoint -match "^3\\.4") {
+      if (-not (Test-GroupComplete "3.3.")) {
+        Write-Err "BLOCKED: 3.4 requires 3.3 complete"
+        return $false
+      }
+    }
+  }
+
+  # Chapter 7 requires Chapter 6 complete
+  if ($chapterMajor -eq "7") {
+    if (-not (Test-GroupComplete "6.")) {
+      Write-Err "BLOCKED: Chapter 7 requires Chapter 6 complete"
+      return $false
+    }
+  }
+
+  return $true
+}
+
+# Enforce dependencies before modifying files / creating backups
+if (-not (Test-PhaseDependency -Chapter $Chapter -Subpoint $Subpoint -RoadmapText $raw)) {
+  Write-Err "CANNOT BACKUP: Dependencies not met"
+  exit 1
+}
+
 # Match lines like: - [ ] 1.1.5 ...
 # Replace only the first match for the given subpoint.
 $pattern = "(?m)^- \\[ \\] " + [regex]::Escape($Subpoint) + "\\b"
@@ -80,7 +135,6 @@ if (Get-Command git -ErrorAction SilentlyContinue) {
 
 # 3) Create backup zip (exclude backups to avoid recursion)
 $timestamp2 = Get-Date -Format "yyyyMMdd-HHmmss"
-$timestamp = $timestamp2
 $safeSub = ($Subpoint -replace "[^0-9\\.]", "_")
 $zipName = ("backup_{0}_{1}_{2}.zip" -f $Chapter, $safeSub, $timestamp2)
 $zipPath = Join-Path $backupDir $zipName
@@ -93,29 +147,6 @@ $items = Get-ChildItem -LiteralPath $projectRoot -Force |
 
 Compress-Archive -Path $items.FullName -DestinationPath $zipPath -CompressionLevel Optimal
 Write-Ok ("Backup zip created: {0}" -f $zipPath)
-
-# Special handling for hardware integration milestones (Chapter 3.x)
-if ($Chapter -match "3\\.[1-5]") {
-  Write-Host "HARDWARE MILESTONE - CREATING EXTENDED BACKUP" -ForegroundColor Magenta
-
-  $hardwareBackupDir = Join-Path $backupDir ("hardware_integration_{0}" -f $timestamp)
-  New-Item -ItemType Directory -Path $hardwareBackupDir -Force | Out-Null
-
-  $libsDst = Join-Path $hardwareBackupDir "libs"
-  $jniDst = Join-Path $hardwareBackupDir "jniLibs"
-
-  if (Test-Path -LiteralPath $libsDst) { } else { New-Item -ItemType Directory -Path $libsDst -Force | Out-Null }
-  if (Test-Path -LiteralPath $jniDst) { } else { New-Item -ItemType Directory -Path $jniDst -Force | Out-Null }
-
-  if (Test-Path -LiteralPath (Join-Path $projectRoot "app\\libs")) {
-    Copy-Item (Join-Path $projectRoot "app\\libs\\*") $libsDst -Recurse -Force -ErrorAction SilentlyContinue
-  }
-  if (Test-Path -LiteralPath (Join-Path $projectRoot "app\\src\\main\\jniLibs")) {
-    Copy-Item (Join-Path $projectRoot "app\\src\\main\\jniLibs\\*") $jniDst -Recurse -Force -ErrorAction SilentlyContinue
-  }
-
-  Write-Host ("Hardware files backed up to: {0}" -f $hardwareBackupDir) -ForegroundColor Cyan
-}
 
 # 4) Append activity log
 $logPath = Join-Path $backupDir "activity_log.txt"

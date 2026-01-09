@@ -44,3 +44,7 @@ reports/*.html
 !reports/RAPORT_ANALIZA_*.html
 !reports/VAULTGUARD_FINAL_STATUS_ROADMAP_LATEST.*
 
+# Chat/run logs (keep out of Git)
+chat_history/
+execution_logs/
+

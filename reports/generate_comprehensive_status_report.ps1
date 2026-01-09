@@ -19,6 +19,15 @@ function Resolve-ProjectRoot {
   return $null
 }
 
+function Get-ContentOrEmpty([string]$Path) {
+  try {
+    if (Test-Path -LiteralPath $Path) { return (Get-Content -LiteralPath $Path -ErrorAction Stop) }
+    return @()
+  } catch {
+    return @()
+  }
+}
+
 function Get-SafeTotalSizeMB([string]$Dir) {
   try {
     $sum = (Get-ChildItem -Path $Dir -Recurse -File -ErrorAction SilentlyContinue | Measure-Object -Property Length -Sum).Sum
@@ -55,6 +64,8 @@ $resolvedRoot = Resolve-ProjectRoot -Primary $RootPath -Fallback $FallbackRootPa
 if (-not $resolvedRoot) {
   throw ("Project root not found. Tried: {0} and {1}" -f $RootPath, $FallbackRootPath)
 }
+
+$rootResolution = if ($resolvedRoot -eq $RootPath) { "PRIMARY" } else { "FALLBACK" }
 
 $timestamp = Get-Date -Format "yyyy-MM-dd_HH-mm-ss"
 $reportsDir = Join-Path $resolvedRoot "reports"
@@ -116,10 +127,45 @@ if (Test-Path -LiteralPath $reportsDir) {
   $latestHtml = Get-ChildItem -Path $reportsDir -Filter *.html -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending | Select-Object -First 1
 }
 
+# HARDWARE / BIOMETRICS integration probes (HuiFan / EyeCool / X05)
+$appDir = Join-Path $resolvedRoot "app"
+$appMainDir = Join-Path $resolvedRoot "app\src\main"
+$manifestPath = Join-Path $appMainDir "AndroidManifest.xml"
+$manifest = Get-ContentOrEmpty $manifestPath
+$hasUsbHostFeature = ($manifest | Select-String -Pattern "android\.hardware\.usb\.host" -SimpleMatch -ErrorAction SilentlyContinue) -ne $null
+$hasUsbAttachIntent = ($manifest | Select-String -Pattern "ACTION_USB_DEVICE_ATTACHED" -SimpleMatch -ErrorAction SilentlyContinue) -ne $null
+$hasUsbPermissionFlow = ($manifest | Select-String -Pattern "UsbManager|USB_PERMISSION" -ErrorAction SilentlyContinue) -ne $null
+
+$deviceFilter = Join-Path $appMainDir "res\xml\device_filter.xml"
+$hasDeviceFilter = Test-Path -LiteralPath $deviceFilter
+
+$huiFanStub = Join-Path $appMainDir "java\com\example\vaultguard\revolution\hardware\HuiFanManagerRevolution.kt"
+$hasHuiFanStub = Test-Path -LiteralPath $huiFanStub
+
+$huifanManager = Join-Path $appMainDir "java\com\example\vaultguard\biometrics\HuifanBiometricManager.kt"
+$hasHuifanManager = Test-Path -LiteralPath $huifanManager
+
+$libsDir = Join-Path $appDir "libs"
+$jniDir = Join-Path $appMainDir "jniLibs"
+$eyeCoolJars = @()
+if (Test-Path -LiteralPath $libsDir) {
+  $eyeCoolJars = @(Get-ChildItem -Path $libsDir -Filter "*eyecool*.jar" -ErrorAction SilentlyContinue)
+}
+$nativeSos = @()
+if (Test-Path -LiteralPath $jniDir) {
+  $nativeSos = @(Get-ChildItem -Path $jniDir -Recurse -Filter "*.so" -ErrorAction SilentlyContinue)
+}
+
+$x05DeviceManager = Join-Path $appMainDir "java\com\example\vaultguard\device\x05\X05DeviceManager.kt"
+$x05TcpClient = Join-Path $appMainDir "java\com\example\vaultguard\device\x05\X05TcpClient.kt"
+$x05HttpClient = Join-Path $appMainDir "java\com\example\vaultguard\device\x05\X05HttpClient.kt"
+$hasX05Module = (Test-Path -LiteralPath $x05DeviceManager) -or (Test-Path -LiteralPath $x05TcpClient) -or (Test-Path -LiteralPath $x05HttpClient)
+
 $txt = @()
 $txt += "# VAULTGUARD REVOLUTION - COMPREHENSIVE STATUS REPORT"
 $txt += ("Report Generated: {0}" -f $generatedAt)
 $txt += ("Project Root: {0}" -f $resolvedRoot)
+$txt += ("Root Resolution: {0} (Primary={1}, Fallback={2})" -f $rootResolution, $RootPath, $FallbackRootPath)
 $txt += ("Project Name: {0}" -f $projectName)
 $txt += "Project Phase: ACTIVE DEVELOPMENT"
 $txt += "Overall Progress: 70%"
@@ -181,6 +227,17 @@ $txt += ("- Java Files: {0}" -f $javaFiles.Count)
 $txt += ("- Kotlin Files: {0}" -f $ktFiles.Count)
 $txt += ("- XML Files: {0}" -f $xmlFiles.Count)
 $txt += ("- Total Source Files: {0}" -f ($javaFiles.Count + $ktFiles.Count + $xmlFiles.Count))
+$txt += ""
+$txt += "HARDWARE / BIOMETRICS INTEGRATION STATUS:"
+$txt += ("- HuiFan manager stub present: {0}" -f $(if($hasHuiFanStub){"YES"}else{"NO"}))
+$txt += ("- HuifanBiometricManager present: {0}" -f $(if($hasHuifanManager){"YES"}else{"NO"}))
+$txt += ("- EyeCool JARs in app/libs: {0}" -f $eyeCoolJars.Count)
+$txt += ("- Native .so libs in jniLibs: {0}" -f $nativeSos.Count)
+$txt += ("- USB device filter present (res/xml/device_filter.xml): {0}" -f $(if($hasDeviceFilter){"YES"}else{"NO"}))
+$txt += ("- AndroidManifest has usb.host feature: {0}" -f $(if($hasUsbHostFeature){"YES"}else{"NO"}))
+$txt += ("- AndroidManifest handles USB attach intent: {0}" -f $(if($hasUsbAttachIntent){"YES"}else{"NO"}))
+$txt += ("- USB permission flow referenced in manifest: {0}" -f $(if($hasUsbPermissionFlow){"YES"}else{"NO"}))
+$txt += ("- X05 network module present (device/x05): {0}" -f $(if($hasX05Module){"YES"}else{"NO"}))
 $txt += ""
 $txt += "STORAGE METRICS:"
 $txt += ("- Total Project Files: {0}" -f $totalFiles)

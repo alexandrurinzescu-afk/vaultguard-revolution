@@ -1,7 +1,7 @@
 # VAULTGUARD REVOLUTION - ROADMAP STRUCTURAT
 
 **Data creare:** 2026-01-09 15:14:39  
-**Versiune:** 1.0  
+**Versiune:** 2.0  
 **Repo root:** `C:\Users\pc\AndroidStudioProjects\VaultGuard`  
 **Status curent:** In desfasurare
 
@@ -71,49 +71,61 @@
 
 ---
 
-# CAPITOL 3: FAZA 3 - DUAL BIOMETRIC HARDWARE INTEGRATION (IRIS + PALMVEIN)
+# 🔌 CAPITOL 3: FAZA 3 - SEQUENTIAL HARDWARE INTEGRATION
 
-## 3.1 IRIS - DEVICE & SDK FOUNDATION
-- [ ] 3.1.1 Obtine fisiere SDK iris (EyeCool/HuiFan/X05) + documentatie
-- [ ] 3.1.2 Validare compatibilitate (ABI, minSdk, permisiuni, transport)
-- [ ] 3.1.3 Standardizare packaging (app/libs + app/src/main/jniLibs)
-- [ ] 3.1.4 Definire contract API (capture/quality/template) pentru iris
-- [ ] 3.1.5 Implementare pipeline captare iris (stub -> SDK real)
+## 🎯 STRATEGIA HFSECURITY: Integrare Secvențială
+```
+ETAPA 3.1: ✅ Biometrică Universală Camera Telefon
+    ├── Facial recognition (toate telefoanele)
+    └── Fingerprint fallback (dacă disponibil)
+    ↓
+ETAPA 3.2: 🔄 IRIS X05 (HFSecurity - SDK DISPONIBIL)
+    ├── Integrare scanner iris X05
+    └── Testare: facial/fingerprint + IRIS 100% funcțional
+    ↓  
+ETAPA 3.3: ⏳ PALM VEIN (HFSecurity - SDK COMANDAT)
+    ├── Așteptare livrare scanner palm vein
+    └── Integrare după confirmare iris funcțional
+    ↓
+ETAPA 3.4: 🌍 DUAL BIOMETRIC IRIS + PALM VEIN
+    └── SINGURA aplicație dual biometric din lume
+```
 
-## 3.2 IRIS - TEMPLATE & MATCHING
-- [ ] 3.2.1 Integrare extractie template (SDK)
-- [ ] 3.2.2 Quality scoring (focus/exposure/occlusion) + feedback UI
-- [ ] 3.2.3 Liveness / anti-spoof baseline (daca SDK suporta; altfel heuristici)
-- [ ] 3.2.4 1:1 matching integration + praguri initiale
-- [ ] 3.2.5 Enrollment flow (iris) end-to-end + metrici/calibrare
+## 3.1 BIOMETRICĂ UNIVERSALĂ CAMERA TELEFON
+- [ ] 3.1.1 Facial recognition via telefon camera (toate Android)
+- [ ] 3.1.2 Fingerprint fallback system (hardware dependent)
+- [ ] 3.1.3 Basic biometric enrollment flow
+- [ ] 3.1.4 Camera quality detection & optimization
+- [ ] 3.1.5 Testing pe Motorola G05 (dispozitivul nostru)
 
-## 3.3 PALMVEIN - DEVICE & SDK FOUNDATION
-- [ ] 3.3.1 Obtine fisiere SDK palmvein + documentatie (BLOCAT pana la fisiere)
-- [ ] 3.3.2 Validare compatibilitate (ABI, minSdk, permisiuni, transport)
-- [ ] 3.3.3 Definire contract API (capture/quality/template) pentru palmvein
-- [ ] 3.3.4 Implementare pipeline captare palmvein (stub -> SDK real)
-- [ ] 3.3.5 Standardizare management erori (disconnect/timeouts/retry)
+**DEPENDENCY:** ✅ FAZA 2 COMPLETĂ (Security Core)
 
-## 3.4 PALMVEIN - TEMPLATE & MATCHING
-- [ ] 3.4.1 Integrare extractie template (SDK)
-- [ ] 3.4.2 Quality scoring (ROI/contrast/noise) + feedback UI
-- [ ] 3.4.3 Liveness / presentation attack baseline (daca e disponibil)
-- [ ] 3.4.4 1:1 matching integration + praguri initiale
-- [ ] 3.4.5 Enrollment flow (palmvein) end-to-end + metrici/calibrare
+## 3.2 INTEGRARE HFSECURITY IRIS X05
+- [ ] 3.2.1 Obținere SDK X05 de la Joyce (fizic disponibil)
+- [ ] 3.2.2 Analiză documentație recunoaștere iris
+- [ ] 3.2.3 Setup conexiune hardware X05 (USB-C/Bluetooth)
+- [ ] 3.2.4 Iris capture pipeline implementare
+- [ ] 3.2.5 Testare COMPLETĂ: facial/fingerprint + IRIS 100% funcțional
 
-## 3.5 DUAL BIOMETRIC ORCHESTRATION (IRIS + PALMVEIN)
-- [ ] 3.5.1 Unified session state machine (capture -> quality -> template -> match)
-- [ ] 3.5.2 Strategie de fuziune (AND/OR, score-level fusion, risk-based)
-- [ ] 3.5.3 Politici de fallback + retry (ordine moduri, rate limits, lockouts)
-- [ ] 3.5.4 Storage mapping securizat (2 modalitati + metadata) via Keystore
-- [ ] 3.5.5 Audit events + privacy: fara template-uri/bytes in loguri
+**DEPENDENCY:** ✅ 3.1 COMPLET + ✅ Hardware X05 primit
 
-## 3.6 UNIVERSAL FALLBACK & RECOVERY
-- [ ] 3.6.1 Mod fallback (camera phone) - limitari + criterii acceptare
-- [ ] 3.6.2 Adaptive guidance UI (mesaje calitate, iluminare, pozitionare)
-- [ ] 3.6.3 Recovery & stability tests (timeouts, reconnect, memory pressure)
-- [ ] 3.6.4 Re-enrollment + template rotation plan (per user/device)
-- [ ] 3.6.5 Performance envelope (FPS, latency, battery) pe device matrix
+## 3.3 INTEGRARE HFSECURITY PALM VEIN
+- [ ] 3.3.1 Comandare scanner palm vein + SDK de la HFSecurity
+- [ ] 3.3.2 Setup hardware palm vein scanner
+- [ ] 3.3.3 Recunoaștere pattern vascular
+- [ ] 3.3.4 Integrare în aplicație existentă
+- [ ] 3.3.5 Validare performanță palm vein
+
+**DEPENDENCY:** ✅ 3.2 COMPLET (IRIS 100% funcțional)
+
+## 3.4 SISTEM DUAL BIOMETRIC FUSION
+- [ ] 3.4.1 Motor de fuziune IRIS + PALM VEIN
+- [ ] 3.4.2 Scorare încredere multi-modală
+- [ ] 3.4.3 Prima aplicație dual biometric iris+palm vein din lume
+- [ ] 3.4.4 Certificare securitate enterprise
+- [ ] 3.4.5 Pregătire deploy global
+
+**DEPENDENCY:** ✅ 3.3 COMPLET (ambele hardware integrate)
 
 ---
 
@@ -181,35 +193,77 @@
 
 ---
 
-# CAPITOL 6: FAZA 6 - ENTERPRISE FEATURES
+# 🏢 CAPITOL 6: FAZA 6 - ENTERPRISE DUAL BIOMETRIC
 
-## 6.1 IDENTITY & ACCESS MANAGEMENT (IAM)
-- [ ] 6.1.1 SSO strategy (OIDC/SAML) + provider matrix
-- [ ] 6.1.2 SCIM provisioning baseline (users/groups)
-- [ ] 6.1.3 RBAC model (roles/scopes/policies) + mapping in UI/admin
-- [ ] 6.1.4 Device attestation plan (Play Integrity / SafetyNet replacement)
-- [ ] 6.1.5 Audit logs export format (sanitized, enterprise-friendly)
+## 6.1 ENTERPRISE HARDENING (IRIS + PALM VEIN)
+- [ ] 6.1.1 Threat model + security review pentru fluxurile dual-biometric
+- [ ] 6.1.2 Anti-abuz (rate limiting) + hooks pentru anti-spoof/liveness (design)
+- [ ] 6.1.3 Audit logs enterprise + redaction policy
+- [ ] 6.1.4 Politici offline/online + secure sync plan
+- [ ] 6.1.5 Validare end-to-end pe device-urile target + hardware scanners
 
-## 6.2 COMPLIANCE & GOVERNANCE
-- [ ] 6.2.1 Threat model update pentru dual biometrics (iris + palmvein)
-- [ ] 6.2.2 Data retention + deletion policy (templates + metadata)
-- [ ] 6.2.3 Consent + privacy notice flows (per modality)
-- [ ] 6.2.4 Incident response runbook (keys compromise / device loss)
-- [ ] 6.2.5 Security review checklist per release (pre-flight gate)
-
-## 6.3 OPERATIONS & DEPLOYMENT (ENTERPRISE)
-- [ ] 6.3.1 CI hardening (signing, secrets, reproducible builds)
-- [ ] 6.3.2 Telemetry/crash strategy (opt-in, redacted, no biometric payload)
-- [ ] 6.3.3 Feature flags pentru rollout (iris-only -> dual -> enterprise)
-- [ ] 6.3.4 Enterprise configuration profiles (policy packs)
-- [ ] 6.3.5 Support diagnostics bundle (sanitized) + export
+## 6.2 COMPLIANCE & CERTIFICATION PREP
+- [ ] 6.2.1 Data retention + secure deletion policy
+- [ ] 6.2.2 Mapare GDPR / cerinte industrie
+- [ ] 6.2.3 Pen-test plan + tooling
+- [ ] 6.2.4 Pachet documentatie securitate (enterprise-ready)
+- [ ] 6.2.5 Release readiness checklist (stabilitate, suport, SLA)
 
 ---
+
+# 🔬 CAPITOL 7: FAZA 7 - ULTIMATE HARDWARE INTEGRATION
+
+## 🎯 VIZIUNE FINALĂ: SCANNER UNIC HFSECURITY
+```
+ETAPA 7.1: ✅ Aplicație dual biometric 100% funcțională
+    ├── Software: IRIS + PALM VEIN integration perfectă
+    └── Testare: Stabilitate și securitate maximă
+    ↓
+ETAPA 7.2: ✈️ Vizită fabrică HFSecurity China
+    ├── Demonstrare aplicație funcțională
+    └── Cerere scanner fizic unic IRIS+PALM VEIN
+    ↓
+ETAPA 7.3: 🏭 DEZVOLTARE HARDWARE CUSTOM
+    ├── Design scanner combinat
+    └── Producție prototip exclusiv
+    ↓
+ETAPA 7.4: 🌟 PRODUS FINAL INTEGRAT
+    └── SINGURUL scanner biometric dual din lume
+```
+
+## 7.1 PREGĂTIRE VIZITĂ HFSECURITY
+- [ ] 7.1.1 Aplicație dual biometric 100% stabilă și testată
+- [ ] 7.1.2 Documentație tehnică completă pentru demonstrare
+- [ ] 7.1.3 Metrics de performanță enterprise-ready
+- [ ] 7.1.4 Business case pentru HFSecurity
+- [ ] 7.1.5 Plan de călătorie și agendă meeting-uri
+
+## 7.2 NEGOCIERE ȘI DESIGN
+- [ ] 7.2.1 Demonstrare tehnică la sediul HFSecurity
+- [ ] 7.2.2 Specificații tehnice scanner combinat
+- [ ] 7.2.3 Acord de confidențialitate și parteneriat
+- [ ] 7.2.4 Timeline producție hardware
+- [ ] 7.2.5 Cost estimation și financing plan
+
+## 7.3 DEZVOLTARE HARDWARE CUSTOM
+- [ ] 7.3.1 Design industrial scanner IRIS+PALM VEIN
+- [ ] 7.3.2 Prototipare hardware la HFSecurity
+- [ ] 7.3.3 Integrare software cu hardware nou
+- [ ] 7.3.4 Testare prototip în condiții reale
+- [ ] 7.3.5 Certificări hardware internaționale
+
+## 7.4 PRODUS FINAL INTEGRAT
+- [ ] 7.4.1 Producție masă scanner unic
+- [ ] 7.4.2 Packaging și branding "VaultGuard Revolution"
+- [ ] 7.4.3 Launch global - primul scanner biometric dual
+- [ ] 7.4.4 Parteneriate cu producători OEM
+- [ ] 7.4.5 Ecosystem complet hardware+software
+
+**DEPENDENCY:** ✅ CAPITOL 6 COMPLET (Enterprise Dual Biometric)
 
 ## PROGRES GLOBAL (manual)
 - Completat: (auto-calc in script viitor)
 - In progres: (manual)
-- Total subpuncte (target): 110 (85 + 25 noi: dual biometrics + enterprise)
 - Urmatorul subpunct recomandat: **1.1.5** (curatare + commit coerent) sau **2.1.1** (KeystoreManager)
 
 ---
