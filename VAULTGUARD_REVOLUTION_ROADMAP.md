@@ -38,7 +38,7 @@
 - [x] 1.1.2 Configurare Git repository
 - [x] 1.1.3 Setup Android Studio workspace (confirmare manuala)
 - [x] 1.1.4 Configurare Gradle wrapper
-- [ ] 1.1.5 Initial commit cu structura de baza (optional: curatare + commit coerent)
+- [x] 1.1.5 Initial commit cu structura de baza (optional: curatare + commit coerent)
 
 ## 1.2 DOCUMENTATIE & PLANIFICARE
 - [x] 1.2.1 Creare document roadmap (acest fisier)
@@ -297,6 +297,7 @@ ETAPA 7.4: ðŸŒŸ PRODUS FINAL INTEGRAT
 2. Checkpoint la fiecare 5 subpuncte (manual, deocamdata):
    - Full project backup .zip
    - Documentatie sincronizata
+
 
 
 

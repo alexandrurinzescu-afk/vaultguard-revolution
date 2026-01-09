@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.RectF
 import android.util.Log
 import androidx.camera.core.ImageProxy
+import androidx.camera.core.ExperimentalGetImage
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.face.Face
 import com.google.mlkit.vision.face.FaceDetection
@@ -58,6 +59,7 @@ class FaceDetectorProcessor(context: Context) {
         Log.i(TAG, "✅ AI Brain online with advanced senses.")
     }
 
+    @ExperimentalGetImage
     suspend fun processFrame(imageProxy: ImageProxy) = withContext(Dispatchers.IO) {
         if (!isInitialized.get() || imageProxy.image == null) {
             imageProxy.close()
