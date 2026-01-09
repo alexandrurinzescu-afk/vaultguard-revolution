@@ -36,7 +36,7 @@
 ## 1.1 PROIECT INITIALIZARE
 - [x] 1.1.1 Creare structura proiect Android
 - [x] 1.1.2 Configurare Git repository
-- [ ] 1.1.3 Setup Android Studio workspace (confirmare manuala)
+- [x] 1.1.3 Setup Android Studio workspace (confirmare manuala)
 - [x] 1.1.4 Configurare Gradle wrapper
 - [ ] 1.1.5 Initial commit cu structura de baza (optional: curatare + commit coerent)
 
@@ -297,6 +297,7 @@ ETAPA 7.4: ðŸŒŸ PRODUS FINAL INTEGRAT
 2. Checkpoint la fiecare 5 subpuncte (manual, deocamdata):
    - Full project backup .zip
    - Documentatie sincronizata
+
 
 
 
