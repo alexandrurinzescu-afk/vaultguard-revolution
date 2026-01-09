@@ -48,3 +48,7 @@ reports/*.html
 chat_history/
 execution_logs/
 
+
+# Protocol backups (generated artifacts)
+backups/*.zip
+backups/activity_log.txt
