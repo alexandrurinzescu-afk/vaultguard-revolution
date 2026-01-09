@@ -105,8 +105,9 @@ if (-not (Test-PhaseDependency -Chapter $Chapter -Subpoint $Subpoint -RoadmapTex
 }
 
 # Match lines like: - [ ] 1.1.5 ...
+# Allow any non-completed state marker (space, ~, !) and normalize to [x].
 # Replace only the first match for the given subpoint.
-$pattern = "(?m)^- \\[ \\] " + [regex]::Escape($Subpoint) + "\\b"
+$pattern = "(?m)^-\\s*\\[( |~|!)\\]\\s+" + [regex]::Escape($Subpoint) + "\\b"
 if ($raw -match $pattern) {
   $raw2 = [regex]::Replace($raw, $pattern, ("- [x] " + $Subpoint), 1)
   Set-Content -LiteralPath $roadmapFile -Value $raw2 -Encoding UTF8
