@@ -9,6 +9,21 @@ function Write-Err([string]$Msg) { Write-Host $Msg -ForegroundColor Red }
 $projectRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 $roadmapFile = Join-Path $projectRoot "VAULTGUARD_REVOLUTION_ROADMAP.md"
 
+function Test-IsExcludedPath([string]$FullPath) {
+  $p = $FullPath.ToLowerInvariant()
+  return (
+    $p -like "*\vaultguardrevolution\.git\*" -or
+    $p -like "*\vaultguardrevolution\.gradle\*" -or
+    $p -like "*\vaultguardrevolution\.idea\*" -or
+    $p -like "*\vaultguardrevolution\app\build\*" -or
+    $p -like "*\vaultguardrevolution\build\*" -or
+    $p -like "*\vaultguardrevolution\backups\*" -or
+    $p -like "*\vaultguardrevolution\reports\*" -or
+    $p -like "*\vaultguardrevolution\.cxx\*" -or
+    $p -like "*\vaultguardrevolution\.kotlin\*"
+  )
+}
+
 $auditDate = Get-Date -Format "yyyy-MM-dd"
 $auditDir = "C:\VAULTGUARD_UNIVERSE\AUDITS"
 $auditLog = Join-Path $auditDir ("protocol_audit_{0}.txt" -f $auditDate)
@@ -21,7 +36,12 @@ Write-Info ("Project root: {0}" -f $projectRoot)
 # 1) Orphaned temp artifacts (only protocol-managed patterns)
 $orphanedDirs = Get-ChildItem -LiteralPath $projectRoot -Directory -Filter "_temp_debug_*" -ErrorAction SilentlyContinue
 $orphanedFiles = Get-ChildItem -LiteralPath $projectRoot -File -Recurse -ErrorAction SilentlyContinue |
-  Where-Object { $_.Name -match "(?i)(_temp\\.)" -or $_.Extension -match "^(?i)\\.tmp$|\\.debug$" }
+  Where-Object {
+    (-not (Test-IsExcludedPath $_.FullName)) -and (
+      $_.Name -match "(?i)(_temp\\.)" -or
+      $_.Extension -match "^(?i)\\.tmp$|\\.debug$"
+    )
+  }
 
 if (($orphanedDirs.Count -gt 0) -or ($orphanedFiles.Count -gt 0)) {
   Write-Warn ("FOUND ORPHANED TEMP ARTIFACTS: dirs={0}, files={1}" -f $orphanedDirs.Count, $orphanedFiles.Count)

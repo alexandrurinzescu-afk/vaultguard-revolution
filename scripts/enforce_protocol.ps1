@@ -64,10 +64,20 @@ function Test-PreviousSubpointComplete {
   return $true
 }
 
-function Get-ExcludedRootRegex {
-  # Exclude paths that commonly contain "debug" or temp-like artifacts but should NOT block workflow.
-  # Case-insensitive.
-  return "(?i)\\(\\.git|\\.gradle|\\.idea)\\|\\(app\\build\\)\\|\\(build\\)\\|\\(backups\\)\\|\\(reports\\)\\|\\(\\.cxx\\)\\|\\(\\.kotlin\\)"
+function Test-IsExcludedPath([string]$FullPath) {
+  # Exclude generated/build/vendor dirs so Android build outputs never block protocol.
+  $p = $FullPath.ToLowerInvariant()
+  return (
+    $p -like "*\vaultguardrevolution\.git\*" -or
+    $p -like "*\vaultguardrevolution\.gradle\*" -or
+    $p -like "*\vaultguardrevolution\.idea\*" -or
+    $p -like "*\vaultguardrevolution\app\build\*" -or
+    $p -like "*\vaultguardrevolution\build\*" -or
+    $p -like "*\vaultguardrevolution\backups\*" -or
+    $p -like "*\vaultguardrevolution\reports\*" -or
+    $p -like "*\vaultguardrevolution\.cxx\*" -or
+    $p -like "*\vaultguardrevolution\.kotlin\*"
+  )
 }
 
 function Cleanup-TempFiles {
@@ -88,13 +98,12 @@ function Cleanup-TempFiles {
 }
 
 function Verify-CleanProject {
-  $exclude = Get-ExcludedRootRegex
-
   $tempDirs = Get-ChildItem -LiteralPath $projectRoot -Directory -Recurse -ErrorAction SilentlyContinue |
     Where-Object {
-      $_.FullName -notmatch $exclude -and (
+      (-not (Test-IsExcludedPath $_.FullName)) -and (
         $_.Name -match "(?i)^_temp_debug_" -or
-        $_.Name -match "(?i)^temp$|^tmp$|^debug$" -or
+        $_.Name -match "(?i)^temp$|^tmp$" -or
+        $_.Name -match "(?i)^debug$" -or
         $_.Name -match "(?i)temp|debug"
       )
     }
@@ -102,7 +111,7 @@ function Verify-CleanProject {
   # Files are only a problem if they are protocol temp markers or true temp extensions.
   $tempFiles = Get-ChildItem -LiteralPath $projectRoot -File -Recurse -ErrorAction SilentlyContinue |
     Where-Object {
-      $_.FullName -notmatch $exclude -and (
+      (-not (Test-IsExcludedPath $_.FullName)) -and (
         $_.Name -match "(?i)(_temp\\.)" -or
         $_.Extension -match "^(?i)\\.tmp$|\\.debug$"
       )
