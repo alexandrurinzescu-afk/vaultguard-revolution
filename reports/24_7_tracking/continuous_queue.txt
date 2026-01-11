@@ -1,5 +1,4 @@
-﻿TASK|5.1.2|App Store Optimization|echo TODO: implement 5.1.2 - App Store Optimization
-TASK|5.1.3|Screenshots & promotional materials|echo TODO: implement 5.1.3 - Screenshots & promotional materials
+﻿TASK|5.1.3|Screenshots & promotional materials|echo TODO: implement 5.1.3 - Screenshots & promotional materials
 TASK|5.1.4|Privacy policy & terms|echo TODO: implement 5.1.4 - Privacy policy & terms
 TASK|5.1.5|Beta testing program|echo TODO: implement 5.1.5 - Beta testing program
 TASK|1.2.3|Specificatii tehnice (hardware targets + moduri scanare)|echo TODO: implement 1.2.3 - Specificatii tehnice (hardware targets + moduri scanare)
