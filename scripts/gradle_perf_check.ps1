@@ -14,19 +14,19 @@ Push-Location $projectRoot
 try {
   Write-Info "GRADLE PERFORMANCE CHECK (1.1.4)"
   Write-Info "1) gradlew --version"
-  & .\gradlew.bat --version
+  & .\gradlew.bat --version --no-daemon
 
   Write-Info "2) gradlew tasks"
-  & .\gradlew.bat tasks > $null
+  & .\gradlew.bat tasks --no-daemon > $null
   Write-Ok "tasks: OK"
 
   if ($Mode -eq "full") {
     Write-Info "3) clean assembleDebug (timed)"
-    $t1 = Measure-Command { & .\gradlew.bat clean assembleDebug }
+    $t1 = Measure-Command { & .\gradlew.bat clean assembleDebug --no-daemon }
     Write-Ok ("clean assembleDebug: {0}s" -f ([math]::Round($t1.TotalSeconds, 2)))
 
     Write-Info "4) incremental assembleDebug (timed)"
-    $t2 = Measure-Command { & .\gradlew.bat assembleDebug }
+    $t2 = Measure-Command { & .\gradlew.bat assembleDebug --no-daemon }
     Write-Ok ("assembleDebug (incremental): {0}s" -f ([math]::Round($t2.TotalSeconds, 2)))
 
     if ($t1.TotalSeconds -gt 60) {
@@ -37,7 +37,7 @@ try {
     }
   } else {
     Write-Info "3) incremental assembleDebug (timed)"
-    $t2 = Measure-Command { & .\gradlew.bat assembleDebug }
+    $t2 = Measure-Command { & .\gradlew.bat assembleDebug --no-daemon }
     Write-Ok ("assembleDebug (incremental): {0}s" -f ([math]::Round($t2.TotalSeconds, 2)))
   }
 } finally {

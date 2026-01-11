@@ -1,237 +1,191 @@
-# VAULTGUARD REVOLUTION — ROADMAP (FINAL)
+<!--
+NOTE: This revised roadmap is App Store compliance-oriented (consumer iPhone users) and avoids any enterprise-only assumptions.
+It also keeps Huifan-related items behind explicit consent and without requiring any additional certifications beyond existing Huifan ones.
+-->
 
-**Version:** 2026-01-10  
-**Scope:** Consumer app (VaultGuard Revolution), Operator app module, AI Support system, Admin dashboard, launch + deployment pipeline.  
-**Execution rule:** No phase “starts” until the previous phase quality gates pass.
+# VAULTGUARD REVOLUTION — APP STORE COMPLIANT ROADMAP (8 WEEKS)
 
----
-
-## Phase 0 — Roadmap Revision & Infrastructure (NOW)
-
-### Goals
-- Make execution predictable (quality gates, recovery, tracking).
-- Ensure builds/tests are resilient and observable (especially for 24/7 Cursor execution).
-
-### Deliverables
-- `ROADMAP_FINAL.md`, `TRACKING_SYSTEM.md`, `REMOTE_WORKFLOW.md`
-- Resilient Gradle defaults + offline/recovery build scripts
-- Monitoring: build time tracking, failure pattern detection, baseline performance capture
-
-### Dependencies
-- None (foundational).
-
-### Success metrics
-- Debug + Release builds succeed from clean checkout
-- Offline build script works when dependencies are cached
-- Recovery script resolves common failures without manual intervention
-- Tracking system used daily (progress logs exist for each day)
-
-### Time estimate (padded)
-- **1–2 days**
+**Version:** 2026-01-11  
+**Mission:** Ship an App Store compliant consumer MVP in **8 weeks** with monetization and zero enterprise/government scopes.  
+**Legal safety first:** remove or refactor anything likely to trigger App Store rejection.  
+**Huifan alignment:** only use Huifan capabilities already covered by existing certifications (anything else is explicitly flagged as **Needs confirmation**).  
 
 ---
 
-## Phase 1 — OCR (Desktop) + Document Scanner (2.1.6 FINAL)  **[IN PROGRESS]**
+## Progress columns (required)
+For every task row:
+- **Planned**: approved scope
+- **In Progress**: being implemented now
+- **Testing**: validated on-device + edge cases
+- **Done**: merged + backed up + regression-safe
 
-### Goals
-- Desktop OCR Security Scanner (Windows): extract text from screenshots/images for security analysis.
-- Mobile document scanning: fast, accurate scanning + extraction with secure storage and usability.
-
-### Deliverables (incremental order)
-1. **Desktop OCR Security Scanner (Windows)**: Python OCR engine + batch processing + report generation  
-2. **Agent 24/7**: background runner + scheduled tasks + logs  
-3. **Security Parser**: parse OCR text into security settings + recommendations  
-4. **Mobile Document Scanner**: barcode/QR scanning + OCR + extraction + SecureStorage integration  
-5. **Performance**: <2s scan+OCR (mobile) and <2s OCR on screenshots (desktop p50)
-
-### Dependencies
-- SecureStorage + biometric gate (already present)
-- ML Kit dependencies (text recognition already; add barcode scanning)
-
-### Success metrics
-- <2s scan+OCR on clear documents (p50), <3s p95
-- 95%+ field accuracy on “clear doc” test set
-- Batch scan: 10 docs without crash/leaks
-- Exports decrypt and validate correctly (round-trip test)
-
-### Time estimate (padded)
-- **5–7 days**
+Status columns: `[Planned] [In Progress] [Testing] [Done]`
 
 ---
 
-## Phase 2 — Guardian Angel Module (Mobile)  **[PLANNED | HIGH PRIORITY]**
-
-### Vision
-Background biometric verification + app-level protection: “VaultGuard protects the life inside the device.”
-
-### Components
-1. **Silent Iris Scanner** (front camera, discreet)
-2. **Touch Vascular Pattern Analyzer** (touchscreen dynamics / vascular proxy signals)
-3. **App-Level Firewall** (block sensitive apps/content on mismatch)
-4. **Behavioral Whitelist** (learn the real user over time)
-
-### Metrics (targets)
-- **False Positive Rate**: < 0.1%
-- **Verification Speed**: < 500ms
-- **Battery Impact**: < 1% / day
-- **Adoption**: seamless onboarding (no friction)
-
-### Risks / notes
-- Significant platform constraints (camera/background limits, privacy prompts, OS policies).
-- Requires careful consent, threat modeling, and UX design.
-
-### Time estimate (padded)
-- **6–10 days** for a MVP spike + measurement harness (device dependent)
-
-### Status metadata
-```json
-{
-  "module": "GuardianAngel",
-  "status": "PLANNED",
-  "priority": "HIGH",
-  "user_value": "PROTECT_CONTENT_NOT_JUST_DEVICE",
-  "competition_angle": "UNIQUE_MULTI_BIOMETRIC_BACKGROUND",
-  "technical_risk": "MEDIUM",
-  "timeline": "Q2 2024"
-}
-```
+## 2.5 GDPR & Privacy Compliance (mandatory for App Store approval)
+Scope: consumer document vault + biometric authentication for app access (NOT identity verification).
+| Task | Planned | In Progress | Testing | Done | App Store risk | Est |
+|---|:---:|:---:|:---:|:---:|---|---|
+| Legal disclaimer (no official identity verification; no gov recognition; no KYC/AML) | ✅ |  |  |  | Low | 0.25–0.5d |
+| Privacy Gateway (in-app policy + accept/decline) + web link | ✅ |  |  |  | Low | 0.5–1d |
+| Biometric consent (separate consent for iris/palm vein; revoke anytime) | ✅ |  |  |  | Low | 0.5–1d |
+| Data deletion flow (one-click delete all user data + keys) | ✅ |  |  |  | Low | 0.5–1d |
+| Data export (user-controlled export; no sensitive logs) | ✅ |  |  |  | Low | 0.5–1d |
+| Data minimization & retention policy (no hidden tracking) | ✅ |  |  |  | Low | 0.5–1d |
+| No background biometric capture (foreground-only) | ✅ |  |  |  | Low | 0.25d |
+| iCloud backup rules (documents only; NOT biometric templates; opt-in; encrypted) | ✅ |  |  |  | Medium | 1–2d |
 
 ---
 
-## Phase 3 — VaultGuard Operator App (:operator module)
+## Current reality snapshot (from repo)
+These are implemented in the current codebase (Android-first), and should be ported/replicated for iOS MVP:
 
-### Goals
-- Enterprise/operator workflow: fast verifications, offline-first, strict auditing and roles.
-
-### Deliverables
-- New Gradle module `:operator` (separate appId)
-- Verification flow: face detection / match + QR fallback
-- Offline cache of verified tickets + sync when online
-- RBAC: staff / supervisor / admin
-- Operator audit trail (tamper-evident, encrypted)
-- Analytics dashboard (in-app) for counts + denial reasons
-- Private distribution + OTA update strategy
-
-### Dependencies
-- Phase 1 ticket/QR formats stable
-- Security hardening baseline (root/debugger policy, storage, audit)
-
-### Success metrics
-- Verify ticket in <1.5s median
-- Offline verification works with zero connectivity
-- Audit log passes verification after 10k events
-
-### Time estimate (padded)
-- **6–9 days**
+| Component | Planned | In Progress | Testing | Done | Notes |
+|---|:---:|:---:|:---:|:---:|---|
+| Keystore-backed encryption (AES-GCM) |  |  |  | ✅ | Implemented (Android Keystore). |
+| BiometricPrompt gate + session window |  |  |  | ✅ | Implemented (foreground prompt). |
+| SecureStorage (encrypted files + backup/restore + rotation + wipe) |  |  |  | ✅ | Implemented (Android). |
+| Document Scanner MVP (capture + OCR + barcode + store) |  |  | 🔄 | ✅ | Works; still has polish stubs. |
+| Monitoring/recovery scripts (dev environment) |  |  |  | ✅ | Operational for dev workflow. |
 
 ---
 
-## Phase 4 — AI Support System
+## PHASE 1 (Weeks 1–4) — App Store MVP Core
+**Goal:** A consumer “Document Vault” app that is compliant, privacy-safe, and useful without enterprise/government claims.
 
-### Goals
-- Reduce support load with on-device guidance + optional cloud escalation.
+### Week 1 — Core security + compliance scaffolding
+| Task | Planned | In Progress | Testing | Done | Depends on | App Store risk | Huifan coverage | Est |
+|---|:---:|:---:|:---:|:---:|---|---|---|---|
+| Privacy Gateway (in-app policy + accept/decline) | ✅ |  |  |  | UI shell | Low | N/A | 0.5–1d |
+| Data Deletion Flow (one-click delete all user data) | ✅ |  |  |  | SecureStorage | Low | N/A | 0.5–1d |
+| Biometric Consent (separate consent for iris/palm vein processing) | ✅ |  |  |  | Privacy Gateway | Low | Needs confirmation | 0.5–1d |
+| Huifan Disclosure (clear notice in-app) | ✅ |  |  |  | Privacy Gateway | Low | Covered | 0.25–0.5d |
+| No Background Processing policy (explicit) | ✅ |  |  |  | Compliance docs | Low | N/A | 0.25d |
+| Security logging redaction policy | ✅ |  |  |  | Audit logger | Low | N/A | 0.5–1d |
 
-### Deliverables
-- Local AI rules engine (on-device) for top issues
-- Crash detection + safe mode restart strategy
-- Optional cloud integration (future): OpenAI API / knowledge base
-- Chat-style support UI + guide generator
+### Week 2 — Vault core UX + biometric unlock (foreground only)
+| Task | Planned | In Progress | Testing | Done | Depends on | App Store risk | Huifan coverage | Est |
+|---|:---:|:---:|:---:|:---:|---|---|---|---|
+| Vault lock/unlock UX (foreground BiometricPrompt / FaceID/TouchID equivalent) | ✅ |  |  |  | Core UI | Low | Covered (OS biometrics) | 1–2d |
+| “VaultGuard Sentinel” (in-app only) policy engine MVP | ✅ |  |  |  | Vault lock | Low | N/A | 1–2d |
+| Sensitive screen protection (in-app blur/redact, re-lock on background) | ✅ |  |  |  | Sentinel | Low | N/A | 1–2d |
+| Audit trail (encrypted, tamper-evident) for vault actions | ✅ |  |  |  | SecureStorage | Low | N/A | 1d |
 
-### Dependencies
-- Stable error taxonomy + audit events
-- Deployment pipeline hooks (for remote config / knowledge updates)
+### Week 3 — Document Scanner polish (consumer-grade)
+| Task | Planned | In Progress | Testing | Done | Depends on | App Store risk | Huifan coverage | Est |
+|---|:---:|:---:|:---:|:---:|---|---|---|---|
+| Scanner cropping/perspective correction | ✅ |  |  |  | Scanner MVP | Low | N/A | 1–2d |
+| OCR confidence + field validation rules (passport/ID/tickets) | ✅ |  |  |  | OCR engine | Low | N/A | 1–2d |
+| Document library UX (list/detail/search/type filter) | ✅ |  |  |  | SecureStorage | Low | N/A | 1–2d |
+| Performance budgets (scan+OCR p50/p95) | ✅ |  |  |  | Scanner | Low | N/A | 1d |
 
-### Success metrics
-- Resolves 80% of “top 20” issues without human support
-- Safe-mode recovery reduces crash loops to near-zero
-
-### Time estimate (padded)
-- **4–6 days**
-
----
-
-## Phase 5 — Admin Dashboard & Management (separate repo)
-
-### Goals
-- Real-time monitoring + admin controls.
-
-### Deliverables
-- Web admin panel (separate repo)
-- User/role management, incident alerts, reports
-- Secure API design + audit log ingestion
-
-### Dependencies
-- Operator module + event schema locked
-- Auth model + RBAC decisions finalized
-
-### Success metrics
-- Real-time health dashboard
-- Audit queries + report export works
-
-### Time estimate (padded)
-- **6–8 days** (can overlap with Phase 5 partially)
+### Week 4 — Quality gates + privacy review readiness
+| Task | Planned | In Progress | Testing | Done | Depends on | App Store risk | Huifan coverage | Est |
+|---|:---:|:---:|:---:|:---:|---|---|---|---|
+| Threat model (consumer scope) + data retention policy | ✅ |  |  |  | Core compliance | Low | N/A | 0.5–1d |
+| Automated tests (unit + device smoke) for security critical paths | ✅ |  |  |  | Keystore/SecureStorage | Low | N/A | 2–3d |
+| App Store privacy “nutrition label” data mapping (internal doc) | ✅ |  |  |  | Privacy Gateway | Low | N/A | 0.5–1d |
 
 ---
 
-## Phase 6 — App Store Launch Preparation
+## PHASE 2 (Weeks 5–8) — Monetization & Launch
+**Goal:** Monetization (Apple-approved), subscription tiers, iCloud backup (encrypted) and App Store submission readiness.
 
-### Goals
-- Ship-ready consumer app with subscriptions, localization, compliance.
+### Monetization model (Apple-approved IAP)
+Free Tier (App Store Download):
+- 10 documents/month
+- Basic encryption
+- Fingerprint/FaceID (OS biometrics) unlock
 
-### Deliverables
-- Subscriptions (RevenueCat)
-- Full Material 3 polish + accessibility (TalkBack, large text)
-- Localization: EN/FR/RO (and RTL readiness if needed)
-- Store assets + privacy policy + compliance checklist (GDPR/CCPA)
+Pro Tier: $4.99/month or $49.99/year
+- Unlimited documents
+- Advanced OCR + validation rules
+- Optional encrypted iCloud backup (documents only)
+- Faster scan pipeline + export
 
-### Dependencies
-- Phase 1 complete + stable
-- Phase 6 pipeline for signing/release automation
+Family/Business: $9.99/month (3 users)
+- All Pro features
+- Secure sharing between trusted users (app-level sharing only)
+- Shared folders
 
-### Success metrics
-- Store submission accepted
-- No critical accessibility blockers
+### Week 5 — Subscription plumbing (RevenueCat)
+| Task | Planned | In Progress | Testing | Done | Depends on | App Store risk | Huifan coverage | Est |
+|---|:---:|:---:|:---:|:---:|---|---|---|---|
+| RevenueCat integration (entitlements, restore purchases) | ✅ |  |  |  | Core MVP stable | Low | N/A | 2–3d |
+| Paywall UX + feature gating (10 docs/month, Pro unlocks) | ✅ |  |  |  | RevenueCat | Low | N/A | 1–2d |
+| Trial/intro pricing rules + cancellation UX | ✅ |  |  |  | RevenueCat | Low | N/A | 1d |
 
-### Time estimate (padded)
-- **5–7 days**
+### Week 6 — Encrypted iCloud Backup (documents only)
+| Task | Planned | In Progress | Testing | Done | Depends on | App Store risk | Huifan coverage | Est |
+|---|:---:|:---:|:---:|:---:|---|---|---|---|
+| Encrypted iCloud backup for documents (NOT biometric templates) | ✅ |  |  |  | SecureStorage | Medium | N/A | 2–4d |
+| Backup consent + encryption key handling disclosure | ✅ |  |  |  | Privacy Gateway | Medium | N/A | 1–2d |
+| Backup/restore validation (round-trip) | ✅ |  |  |  | Backup feature | Medium | N/A | 1–2d |
+
+### Week 7 — Sharing feature refactor (consumer-friendly)
+| Task | Planned | In Progress | Testing | Done | Depends on | App Store risk | Huifan coverage | Est |
+|---|:---:|:---:|:---:|:---:|---|---|---|---|
+| “Document Vault Pro” (refactor from Financial Module) | ✅ |  |  |  | Pro gating | Low | N/A | 1–2d |
+| “Family/Business Sharing” (refactor from Enterprise Module) | ✅ |  |  |  | Pro gating | Medium | N/A | 2–4d |
+| Remove “Government Verification” entirely | ✅ |  |  |  | Roadmap hygiene | Low | N/A | 0.25d |
+
+### Week 8 — App Store submission & launch prep
+| Task | Planned | In Progress | Testing | Done | Depends on | App Store risk | Huifan coverage | Est |
+|---|:---:|:---:|:---:|:---:|---|---|---|---|
+| App Store metadata + screenshots + preview video plan | ✅ |  |  |  | Feature complete | Low | N/A | 1–2d |
+| EULA/Privacy policy links + in-app access | ✅ |  |  |  | Privacy Gateway | Low | N/A | 0.5–1d |
+| App Review checklist run + fixes | ✅ |  |  |  | All above | Low | N/A | 1–2d |
+| Launch monitoring (crash/perf) + rollback plan | ✅ |  |  |  | Release pipeline | Low | N/A | 1–2d |
 
 ---
 
-## Phase 7 — Deployment & Monitoring Pipeline
+## PHASE 3+ — Future Enterprise Features (deferred)
+These are explicitly moved out of the 8-week App Store MVP.
 
-### Goals
-- CI/CD + monitoring + backup/recovery for production.
+### Deferred / refactored items
+- Financial Security Module (4.2.1) → **Document Vault Pro** (kept consumer-safe)
+- Enterprise Access Module (4.2.2) → **Family/Business Sharing** (consumer-safe, app-level)
+- Government Verification (4.2.3) → **REMOVED**
+- Cloud Integration (4.3) → **Encrypted iCloud Backup** (documents only; excludes biometric templates)
 
-### Deliverables
-- GitHub Actions (build, test, lint, coverage, release artifacts)
-- Crash + performance monitoring (Firebase)
-- Automated backups + migration tools
-- Enterprise distribution automation (operator)
-
-### Dependencies
-- Test suite stability
-- Secrets management approach for CI
-
-### Success metrics
-- CI green on every merge; release is reproducible
-- Rollback available within <30 minutes
-
-### Time estimate (padded)
-- **4–6 days**
+### Not in MVP (enterprise/government risk)
+- Operator/turnstile workflows
+- Government/elections verification
+- Any device-wide control, surveillance, background camera usage
 
 ---
 
-## Global constraints & resource needs
+## Dependency map (must come before what)
+- Privacy Gateway → Biometric Consent → Huifan Disclosure
+- SecureStorage + Keystore → Data Deletion Flow + Audit Logger
+- Vault lock/unlock UX → Sentinel policy engine → Sensitive screen protection
+- Stable MVP + tests → RevenueCat monetization → iCloud backup
+- Pro gating → Sharing features
 
-### Team / resources
-- **1 Android engineer (full-time)**: core feature delivery
-- **1 QA (part-time)**: test set generation + validation
-- **Test devices**: at least 1 low-end (API 26/28), 1 mid, 1 high-end; plus target hardware when available
-- **Device lab** (optional): Firebase Test Lab / internal farm
+---
 
-### Quality gates (must pass to advance)
-- `:app:assembleDebug` and `:app:assembleRelease`
-- Unit tests + instrumented smoke tests
-- Coverage: **80%+ overall**, with **critical security paths 90%+**
-- Performance budgets (scan time, camera startup, memory)
+## App Store risk assessment rubric (per feature)
+- **Low**: standard UI, standard OS biometrics, local encryption, clear consent, no background capture
+- **Medium**: cloud backup, sharing, anything touching “biometric templates” or unclear consent
+- **High**: background camera/mic, covert biometrics, surveillance, device-wide control/MDM, government verification claims
+
+---
+
+## Backup & tracking protocol (mandatory)
+- Before major roadmap edits: create `ROADMAP_PRE_REVISION_<timestamp>.md`
+- Before/after each subpoint implementation: run `scripts/backup_after_subpoint.ps1`
+- Use progress columns `[Planned] [In Progress] [Testing] [Done]` on tasks above
+
+---
+
+## App Store review checklist (must pass)
+- No background camera/mic capture; no covert biometrics
+- Explicit user consent for any biometric processing (iris/palm vein)
+- Privacy policy accessible in-app; accept/decline gate
+- One-click delete all user data; clear retention policy
+- iCloud backup: encrypted, **documents only**, explicitly excludes biometric templates
+- No government verification claims; consumer positioning only
+- Subscriptions via Apple IAP (RevenueCat ok), restore purchases works
+- Clear disclosures: Huifan technology notice (where applicable)
 

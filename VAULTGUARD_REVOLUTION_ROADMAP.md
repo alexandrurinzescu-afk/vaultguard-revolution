@@ -2,7 +2,7 @@
 
 **Data creare:** 2026-01-09 15:14:39  
 **Versiune:** 1.0  
-**Repo root:** `C:\Users\pc\AndroidStudioProjects\VaultGuard`  
+**Repo root:** `C:\Users\pc\VaultGuardRevolution`  
 **Status curent:** In desfasurare
 
 ---
@@ -42,14 +42,14 @@
 # CAPITOL 2: FAZA 2 - CORE SECURITY ENGINE
 
 ## 2.1 KEYSTORE MANAGER
-- [ ] 2.1.1 Creare/validare KeystoreManager.kt
-- [ ] 2.1.2 Implementare Android KeyStore
-- [ ] 2.1.3 Generare chei AES-GCM
-- [ ] 2.1.4 Operatii criptografice de baza (encrypt/decrypt + metadata)
+- [x] 2.1.1 Creare/validare KeystoreManager.kt
+- [x] 2.1.2 Implementare Android KeyStore
+- [x] 2.1.3 Generare chei AES-GCM
+- [x] 2.1.4 Operatii criptografice de baza (encrypt/decrypt + metadata)
 - [ ] 2.1.5 Unit tests pentru Keystore
 
 ## 2.2 BIOMETRIC AUTHENTICATION
-- [ ] 2.2.1 Integrare BiometricPrompt API (pentru gate de securitate UI)
+- [x] 2.2.1 Integrare BiometricPrompt API (pentru gate de securitate UI)
 - [ ] 2.2.2 Facial recognition de baza (ML Kit) - stabilizare pipeline
 - [ ] 2.2.3 Stocare template-uri biometric (criptat)
 - [ ] 2.2.4 Verificare 1:1 biometrica (match)
@@ -57,10 +57,10 @@
 
 ## 2.3 SECURE STORAGE
 - [ ] 2.3.1 Encrypted SharedPreferences (secrets mici)
-- [ ] 2.3.2 Secure file encryption (blob-uri mari)
+- [x] 2.3.2 Secure file encryption (blob-uri mari)
 - [ ] 2.3.3 Credential management
-- [ ] 2.3.4 Key rotation mechanism
-- [ ] 2.3.5 Secure deletion
+- [x] 2.3.4 Key rotation mechanism
+- [x] 2.3.5 Secure deletion
 
 ## 2.4 SECURITY AUDIT
 - [ ] 2.4.1 Vulnerability assessment
@@ -68,6 +68,16 @@
 - [ ] 2.4.3 Security logging (redaction)
 - [ ] 2.4.4 Compliance checklist
 - [ ] 2.4.5 Security documentation (threat model)
+
+## 2.5 GDPR & PRIVACY COMPLIANCE (APP STORE + BIOMETRIE)
+- [ ] 2.5.1 Legal disclaimer (no official identity verification; no government recognition; no KYC/AML)
+- [ ] 2.5.2 Privacy policy in-app (accept/decline gateway) + link web
+- [ ] 2.5.3 Explicit biometric consent (separate consent for iris/palm vein processing; revoke anytime)
+- [ ] 2.5.4 Data deletion flow (one-click delete all user data + keys) + confirmation UX
+- [ ] 2.5.5 Data export (user-controlled export of documents/metadata; redacted logs)
+- [ ] 2.5.6 Data minimization & retention (store only what is needed; define retention policy; no hidden tracking)
+- [ ] 2.5.7 No background biometric capture (foreground-only; user-initiated prompts)
+- [ ] 2.5.8 iCloud/Cloud backup rules (documents only; NOT biometric templates; encrypted; opt-in)
 
 ---
 
@@ -168,9 +178,9 @@
 ---
 
 ## PROGRES GLOBAL (manual)
-- Completat: (auto-calc in script viitor)
-- In progres: (manual)
-- Urmatorul subpunct recomandat: **1.1.5** (curatare + commit coerent) sau **2.1.1** (KeystoreManager)
+- Completat: 17 / 95
+- In progres: 2.1.5 (tests) + 1.2.3 (specs)
+- Urmatorul subpunct recomandat: **2.1.5** (Unit tests pentru Keystore)
 
 ---
 

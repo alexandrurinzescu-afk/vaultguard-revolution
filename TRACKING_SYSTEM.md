@@ -94,9 +94,7 @@ This repo already includes monitoring scripts in `monitoring/` and automation he
 - **False Positive Rate**: < 0.1%
 - **Verification latency**: < 500ms
 - **Battery impact**: < 1% / day
-- **Adoption/onboarding friction**: qualitative + drop-off %
-
-### Evidence (required)
+- **Adoption/onboarding friction**: qualitative + drop-off %### Evidence (required)
 - Device test logs (at least 2 devices)
 - Battery benchmark run
 - False-positive evaluation run (scripted scenarios)

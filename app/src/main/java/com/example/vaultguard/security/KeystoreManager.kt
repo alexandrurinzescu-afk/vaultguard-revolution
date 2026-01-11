@@ -27,7 +27,9 @@ object KeystoreManager {
         plaintext: ByteArray,
         keyAlias: String = DEFAULT_ALIAS,
     ): EncryptedBlob {
-        val km = VaultKeystoreManager(context)
+        // Legacy behavior: do NOT require user authentication (old implementation had authRequired=false).
+        // New code should use `com.vaultguard.security.*` which enforces biometric gating.
+        val km = VaultKeystoreManager(context, requireUserAuth = false)
         val r = km.encrypt(plaintext, alias = keyAlias)
         return EncryptedBlob(iv = r.iv, ciphertext = r.encryptedData)
     }
@@ -40,7 +42,8 @@ object KeystoreManager {
         encrypted: EncryptedBlob,
         keyAlias: String = DEFAULT_ALIAS,
     ): ByteArray {
-        val km = VaultKeystoreManager(context)
+        // Must match encryptBytes() legacy behavior.
+        val km = VaultKeystoreManager(context, requireUserAuth = false)
         return km.decrypt(
             encryptedData = encrypted.ciphertext,
             iv = encrypted.iv,

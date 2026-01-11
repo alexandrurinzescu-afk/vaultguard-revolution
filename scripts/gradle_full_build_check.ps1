@@ -7,7 +7,7 @@ $projectRoot = "C:\Users\pc\VaultGuardRevolution"
 Push-Location $projectRoot
 try {
   Write-Info "FULL BUILD CHECK (1.1.5): gradlew clean build"
-  $t = Measure-Command { & .\gradlew.bat clean build }
+  $t = Measure-Command { & .\gradlew.bat clean build --no-daemon }
   if ($LASTEXITCODE -ne 0) {
     throw ("Build failed (exit code {0})." -f $LASTEXITCODE)
   }

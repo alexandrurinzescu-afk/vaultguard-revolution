@@ -50,8 +50,8 @@ try {
     Write-Err "Missing gradlew.bat"
     exit 1
   }
-  & .\gradlew.bat --version
-  & .\gradlew.bat assembleDebug
+  & .\gradlew.bat --version --no-daemon
+  & .\gradlew.bat assembleDebug --no-daemon
   Write-Ok "Gradle assembleDebug: OK"
 } finally {
   Pop-Location
