@@ -1,5 +1,4 @@
-﻿TASK|2.5.3|Explicit biometric consent (separate consent for iris/palm vein processing; revoke anytime)|echo TODO: implement 2.5.3 - Explicit biometric consent (separate consent for iris/palm vein processing; revoke anytime)
-TASK|2.5.4|Data deletion flow (one-click delete all user data + keys) + confirmation UX|echo TODO: implement 2.5.4 - Data deletion flow (one-click delete all user data + keys) + confirmation UX
+﻿TASK|2.5.4|Data deletion flow (one-click delete all user data + keys) + confirmation UX|echo TODO: implement 2.5.4 - Data deletion flow (one-click delete all user data + keys) + confirmation UX
 TASK|2.5.5|Data export (user-controlled export of documents/metadata; redacted logs)|echo TODO: implement 2.5.5 - Data export (user-controlled export of documents/metadata; redacted logs)
 TASK|2.5.6|Data minimization & retention (store only what is needed; define retention policy; no hidden tracking)|echo TODO: implement 2.5.6 - Data minimization & retention (store only what is needed; define retention policy; no hidden tracking)
 TASK|2.5.7|No background biometric capture (foreground-only; user-initiated prompts)|echo TODO: implement 2.5.7 - No background biometric capture (foreground-only; user-initiated prompts)
