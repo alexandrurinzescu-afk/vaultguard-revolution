@@ -53,7 +53,7 @@ $raw = Get-Content -LiteralPath $roadmapFile -Raw -ErrorAction Stop
 
 # Match lines like: - [ ] 1.1.5 ...
 # Replace only the first match for the given subpoint.
-$pattern = "(?m)^- \\[ \\] " + [regex]::Escape($numericSubpoint) + "\\b"
+$pattern = "(?m)^\\s*-\\s*\\[\\s\\]\\s+" + [regex]::Escape($numericSubpoint) + "\\b"
 if ($raw -match $pattern) {
   $raw2 = [regex]::Replace($raw, $pattern, ("- [x] " + $numericSubpoint), 1)
   Set-Content -LiteralPath $roadmapFile -Value $raw2 -Encoding UTF8
@@ -103,10 +103,26 @@ $zipPath = Join-Path $backupDir $zipName
 Write-Info ("Creating zip: {0}" -f $zipPath)
 if (Test-Path -LiteralPath $zipPath) { Remove-Item -LiteralPath $zipPath -Force }
 
-$items = Get-ChildItem -LiteralPath $projectRoot -Force |
-  Where-Object { $_.Name -ne "backups" }
+function Test-IsExcludedForBackup([string]$FullPath) {
+  $p = $FullPath.ToLowerInvariant()
+  return (
+    $p -like "*\\vaultguardrevolution\\.git\\*" -or
+    $p -like "*\\vaultguardrevolution\\.gradle\\*" -or
+    $p -like "*\\vaultguardrevolution\\.idea\\*" -or
+    $p -like "*\\vaultguardrevolution\\app\\build\\*" -or
+    $p -like "*\\vaultguardrevolution\\build\\*" -or
+    $p -like "*\\vaultguardrevolution\\backups\\*" -or
+    $p -like "*\\vaultguardrevolution\\reports\\*" -or
+    $p -like "*\\vaultguardrevolution\\chat_history\\*" -or
+    $p -like "*\\vaultguardrevolution\\.cxx\\*" -or
+    $p -like "*\\vaultguardrevolution\\.kotlin\\*"
+  )
+}
 
-Compress-Archive -Path $items.FullName -DestinationPath $zipPath -CompressionLevel Optimal
+$files = Get-ChildItem -LiteralPath $projectRoot -Recurse -File -Force |
+  Where-Object { -not (Test-IsExcludedForBackup $_.FullName) }
+
+Compress-Archive -Path $files.FullName -DestinationPath $zipPath -CompressionLevel Optimal
 Write-Ok ("Backup zip created: {0}" -f $zipPath)
 
 # 4) Append activity log
