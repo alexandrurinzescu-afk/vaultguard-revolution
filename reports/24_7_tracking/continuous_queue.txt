@@ -1,6 +1,4 @@
-﻿TASK|2.5.6|Data minimization & retention (store only what is needed; define retention policy; no hidden tracking)|echo TODO: implement 2.5.6 - Data minimization & retention (store only what is needed; define retention policy; no hidden tracking)
-TASK|2.5.7|No background biometric capture (foreground-only; user-initiated prompts)|echo TODO: implement 2.5.7 - No background biometric capture (foreground-only; user-initiated prompts)
-TASK|2.5.8|iCloud/Cloud backup rules (documents only; NOT biometric templates; encrypted; opt-in)|echo TODO: implement 2.5.8 - iCloud/Cloud backup rules (documents only; NOT biometric templates; encrypted; opt-in)
+﻿TASK|2.5.8|iCloud/Cloud backup rules (documents only; NOT biometric templates; encrypted; opt-in)|echo TODO: implement 2.5.8 - iCloud/Cloud backup rules (documents only; NOT biometric templates; encrypted; opt-in)
 TASK|5.1.1|Google Play Store listing|echo TODO: implement 5.1.1 - Google Play Store listing
 TASK|5.1.2|App Store Optimization|echo TODO: implement 5.1.2 - App Store Optimization
 TASK|5.1.3|Screenshots & promotional materials|echo TODO: implement 5.1.3 - Screenshots & promotional materials
