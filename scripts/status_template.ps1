@@ -43,12 +43,13 @@ function Format-ExecutionReport {
   )
 
   $t = Get-StatusTemplate -AsciiOnly:$AsciiOnly
-  return ($t `
-    -replace "\{STATUS\}", [regex]::Escape($Status) `
-    -replace "\{TIME\}", [regex]::Escape($Time) `
-    -replace "\{SUMMARY\}", [regex]::Escape($Summary) `
-    -replace "\{RERUN\}", [regex]::Escape($Rerun) `
-    -replace "\{NEXT\}", [regex]::Escape($Next))
+  # Use literal string replacement (NOT regex) to avoid inserting backslashes
+  # (Regex.Escape would corrupt natural text like "git status" -> "git\ status").
+  return $t.Replace("{STATUS}", $Status).
+    Replace("{TIME}", $Time).
+    Replace("{SUMMARY}", $Summary).
+    Replace("{RERUN}", $Rerun).
+    Replace("{NEXT}", $Next)
 }
 
 # Convenience: print template to stdout when called directly.

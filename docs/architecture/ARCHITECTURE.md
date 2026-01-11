@@ -11,8 +11,10 @@ This document reflects what exists today in `AndroidStudioProjects/VaultGuard` (
   - Code stub: `com.example.vaultguard.revolution.hardware.HuiFanManagerRevolution`
   - Native libs: `app/src/main/jniLibs/**`
   - JARs: `app/libs/**`
-- **Security (planned)**:
-  - `com.example.vaultguard.security.KeystoreManager` (currently TODO)
+- **Security (implemented + planned)**:
+  - `com.vaultguard.security.keystore.KeystoreManager` (implemented)
+  - `com.vaultguard.security.SecureStorage` (implemented: encrypted files + backup + rotation)
+  - `com.vaultguard.security.biometric.*` (implemented: BiometricPrompt gate + session window)
   - `com.example.vaultguard.enrollment.EnrollmentManager` (currently TODO)
 
 ### Data flow (typical scan / capture loop)
@@ -21,7 +23,7 @@ This document reflects what exists today in `AndroidStudioProjects/VaultGuard` (
 3. **FaceDetectorProcessor** runs ML Kit detection asynchronously.
 4. **UI overlays** render bounding boxes / targeting overlay.
 5. **Hardware managers** (planned) capture biometric data and return templates.
-6. **KeystoreManager** (planned) encrypts templates for storage.
+6. **KeystoreManager** encrypts templates for storage (Android Keystore AES-GCM).
 
 ### Key design choices (recommended)
 - Prefer **one UI paradigm** (Compose) to reduce duplication with XML layouts.
@@ -31,5 +33,5 @@ This document reflects what exists today in `AndroidStudioProjects/VaultGuard` (
 ### Near-term refactor targets
 - Consolidate camera preview into a single implementation (avoid duplication between `CameraPreview.kt` and `RevolutionCamera.kt` preview paths).
 - Replace simulation logic in `HuiFanManagerRevolution` with real SDK calls behind an interface.
-- Implement minimal keystore-backed encryption primitives (AES-GCM) in `KeystoreManager`.
+- Unify legacy `com.example.vaultguard.security.KeystoreManager` usage behind `com.vaultguard.security.keystore.KeystoreManager` (single source of truth).
 

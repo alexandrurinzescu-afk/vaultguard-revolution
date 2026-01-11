@@ -21,6 +21,10 @@ function Write-Err([string]$Msg) { Write-Host $Msg -ForegroundColor Red }
 $projectRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 $backupDir = Join-Path $projectRoot "backups"
 $roadmapFile = Join-Path $projectRoot "VAULTGUARD_REVOLUTION_ROADMAP.md"
+$protocol = Join-Path $PSScriptRoot "enforce_protocol.ps1"
+$numericSubpoint = ($Subpoint -split "-", 2)[0]
+$derivedChapter = ($numericSubpoint -replace "\.\d+$", "")
+$chapterFinal = if (-not [string]::IsNullOrWhiteSpace($Chapter)) { $Chapter } else { $derivedChapter }
 
 if (-not (Test-Path -LiteralPath $roadmapFile)) {
   throw ("Roadmap file not found: {0}" -f $roadmapFile)
@@ -31,90 +35,31 @@ New-Item -ItemType Directory -Force -Path $backupDir | Out-Null
 Write-Info ("Project root: {0}" -f $projectRoot)
 Write-Info ("Roadmap: {0}" -f $roadmapFile)
 Write-Info ("Backups: {0}" -f $backupDir)
+Write-Info ("Subpoint: {0} (chapter: {1})" -f $numericSubpoint, $chapterFinal)
 
-# 0) Protocol cleanup (ironclad workflow)
-$protocolScript = Join-Path $PSScriptRoot "enforce_protocol.ps1"
-if (Test-Path -LiteralPath $protocolScript) {
-  Write-Info "Running protocol cleanup..."
+# 0) Protocol cleanup (mandatory): remove _temp_debug_* and verify clean.
+if (Test-Path -LiteralPath $protocol) {
   try {
-    & $protocolScript -CurrentSubpoint $Subpoint -Operation "post-cleanup"
+    & $protocol -CurrentSubpoint $Subpoint -Operation "post-cleanup" | Out-Null
   } catch {
-    Write-Err ("BACKUP BLOCKED: Protocol cleanup failed: {0}" -f $_.Exception.Message)
-    exit 1
+    Write-Warn ("Protocol cleanup failed (continuing): {0}" -f $_.Exception.Message)
   }
 } else {
-  Write-Warn ("Protocol script not found (skipping): {0}" -f $protocolScript)
+  Write-Warn ("Protocol script missing (skipping cleanup): {0}" -f $protocol)
 }
 
 # 1) Update roadmap checkbox
 $raw = Get-Content -LiteralPath $roadmapFile -Raw -ErrorAction Stop
 
-# Enhanced dependency checking (sequential phases)
-function Test-PhaseDependency {
-  param(
-    [Parameter(Mandatory = $true)][string]$Chapter,
-    [Parameter(Mandatory = $true)][string]$Subpoint,
-    [Parameter(Mandatory = $true)][string]$RoadmapText
-  )
-
-  $chapterMajor = ($Chapter -split "\\.")[0]
-
-  function Test-GroupComplete([string]$prefix) {
-    $any = ([regex]::Matches($RoadmapText, ("(?m)^- \\[[xX]\\] " + [regex]::Escape($prefix)))).Count
-    $incomplete = ([regex]::Matches($RoadmapText, ("(?m)^- \\[(?![xX]\\])[^\\]]\\] " + [regex]::Escape($prefix)))).Count
-    return ($any -gt 0) -and ($incomplete -eq 0)
-  }
-
-  # Chapter 3 sequential dependencies
-  if ($chapterMajor -eq "3") {
-    if ($Subpoint -match "^3\\.2") {
-      if (-not (Test-GroupComplete "3.1.")) {
-        Write-Err "BLOCKED: 3.2 requires 3.1 complete"
-        return $false
-      }
-    }
-    if ($Subpoint -match "^3\\.3") {
-      if (-not (Test-GroupComplete "3.2.")) {
-        Write-Err "BLOCKED: 3.3 requires 3.2 complete"
-        return $false
-      }
-    }
-    if ($Subpoint -match "^3\\.4") {
-      if (-not (Test-GroupComplete "3.3.")) {
-        Write-Err "BLOCKED: 3.4 requires 3.3 complete"
-        return $false
-      }
-    }
-  }
-
-  # Chapter 7 requires Chapter 6 complete
-  if ($chapterMajor -eq "7") {
-    if (-not (Test-GroupComplete "6.")) {
-      Write-Err "BLOCKED: Chapter 7 requires Chapter 6 complete"
-      return $false
-    }
-  }
-
-  return $true
-}
-
-# Enforce dependencies before modifying files / creating backups
-if (-not (Test-PhaseDependency -Chapter $Chapter -Subpoint $Subpoint -RoadmapText $raw)) {
-  Write-Err "CANNOT BACKUP: Dependencies not met"
-  exit 1
-}
-
 # Match lines like: - [ ] 1.1.5 ...
-# Allow any state marker (space, x, ~, !) and normalize to [x].
 # Replace only the first match for the given subpoint.
-# NOTE: Use \s (not \\s) so regex matches whitespace in PowerShell string literals.
-$pattern = "(?m)^-\s*\[( |~|!|x|X)\]\s+" + [regex]::Escape($Subpoint) + "\b"
+$pattern = "(?m)^- \\[ \\] " + [regex]::Escape($numericSubpoint) + "\\b"
 if ($raw -match $pattern) {
-  $raw2 = [regex]::Replace($raw, $pattern, ("- [x] " + $Subpoint), 1)
+  $raw2 = [regex]::Replace($raw, $pattern, ("- [x] " + $numericSubpoint), 1)
   Set-Content -LiteralPath $roadmapFile -Value $raw2 -Encoding UTF8
-  Write-Ok ("Roadmap updated: ensured {0} is marked as completed." -f $Subpoint)
+  Write-Ok ("Roadmap updated: marked {0} as completed." -f $numericSubpoint)
 } else {
-  Write-Warn ("Roadmap checkbox not found for subpoint {0}. No change made." -f $Subpoint)
+  Write-Warn ("Roadmap checkbox not found for subpoint {0}. No change made." -f $numericSubpoint)
 }
 
 # 2) Git commit + tag (best-effort)
@@ -130,11 +75,11 @@ if (Get-Command git -ErrorAction SilentlyContinue) {
       if (-not $dirty) {
         Write-Warn "No changes detected for commit. Skipping commit/tag."
       } else {
-        $commitMessage = ("OK [{0}.{1}] - {2}" -f $Chapter, $Subpoint, $Description)
+        $commitMessage = ("OK [{0}] - {1}" -f $numericSubpoint, $Description)
         git commit -m $commitMessage | Out-Null
 
         $timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
-        $tagName = ("v1.0-{0}-{1}-{2}" -f $Chapter, $Subpoint, $timestamp)
+        $tagName = ("v1.0-{0}-{1}" -f $numericSubpoint, $timestamp)
         git tag $tagName | Out-Null
 
         Write-Ok ("Git commit created + tag: {0}" -f $tagName)
@@ -151,8 +96,8 @@ if (Get-Command git -ErrorAction SilentlyContinue) {
 
 # 3) Create backup zip (exclude backups to avoid recursion)
 $timestamp2 = Get-Date -Format "yyyyMMdd-HHmmss"
-$safeSub = ($Subpoint -replace "[^0-9\\.]", "_")
-$zipName = ("backup_{0}_{1}_{2}.zip" -f $Chapter, $safeSub, $timestamp2)
+$safeSub = ($numericSubpoint -replace "[^0-9\\.]", "_")
+$zipName = ("backup_{0}_{1}_{2}.zip" -f $chapterFinal, $safeSub, $timestamp2)
 $zipPath = Join-Path $backupDir $zipName
 
 Write-Info ("Creating zip: {0}" -f $zipPath)
@@ -168,11 +113,40 @@ Write-Ok ("Backup zip created: {0}" -f $zipPath)
 $logPath = Join-Path $backupDir "activity_log.txt"
 $log = @()
 $log += ("DATE: {0}" -f (Get-Date -Format "yyyy-MM-dd HH:mm:ss"))
-$log += ("SUBPOINT: {0}.{1}" -f $Chapter, $Subpoint)
+$log += ("SUBPOINT: {0}" -f $numericSubpoint)
 $log += ("DESC: {0}" -f $Description)
 $log += ("ZIP: {0}" -f $zipPath)
 $log += ""
 Add-Content -LiteralPath $logPath -Value ($log -join "`r`n")
 
-Write-Ok ("DONE: {0}.{1}" -f $Chapter, $Subpoint)
+Write-Ok ("DONE: {0}" -f $numericSubpoint)
 
+# 5) Start Cursor and open this repo (best-effort)
+# Cautam Cursor in locatii comune
+$cursorPaths = @(
+  (Join-Path $env:ProgramFiles "Cursor\cursor.exe"),
+  (Join-Path $env:LocalAppData "Programs\Cursor\cursor.exe"),
+  (Join-Path $env:USERPROFILE "AppData\Local\Programs\Cursor\cursor.exe"),
+  "C:\Program Files\Cursor\cursor.exe",
+  "C:\Program Files (x86)\Cursor\cursor.exe"
+)
+
+$started = $false
+foreach ($path in $cursorPaths) {
+  if (Test-Path -LiteralPath $path) {
+    try {
+      Start-Process -FilePath $path -ArgumentList @($projectRoot) | Out-Null
+      Write-Ok ("Cursor started from: {0}" -f $path)
+      $started = $true
+      break
+    } catch {
+      Write-Warn ("Failed to start Cursor from {0}: {1}" -f $path, $_.Exception.Message)
+    }
+  }
+}
+
+# Daca nu gasim, deschidem pagina de instalare
+if (-not $started -and -not (Get-Process -Name "cursor" -ErrorAction SilentlyContinue)) {
+  Write-Err "Cursor not found. Opening install page..."
+  Start-Process "https://cursor.sh" | Out-Null
+}

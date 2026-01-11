@@ -21,7 +21,7 @@ So Phase 2 starts with a **network communication module** that can work with X05
   - `app/src/main/java/com/example/vaultguard/device/x05/X05HttpClient.kt`
   - `app/src/main/java/com/example/vaultguard/device/x05/X05Endpoints.kt`
 - Security:
-  - `app/src/main/java/com/example/vaultguard/security/KeystoreManager.kt` (AES-GCM via Android Keystore)
+  - `app/src/main/java/com/vaultguard/security/keystore/KeystoreManager.kt` (AES-GCM via Android Keystore, auth-gated)
 
 ### Quick connectivity probe (PC side)
 Run on Windows (PowerShell):

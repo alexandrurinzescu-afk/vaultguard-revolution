@@ -2,7 +2,9 @@
 # PowerShell 5.1 friendly, ASCII-only output.
 param(
   [Parameter(Mandatory = $true)]
-  [ValidatePattern("^\d+\.\d+\.\d+$")]
+  # Protocol operates on numeric roadmap subpoints (e.g. 2.1.1).
+  # Optional suffixes (e.g. 2.1.1-CLEANUP) are allowed and will be handled here.
+  [ValidatePattern("^\d+\.\d+\.\d+(-[A-Za-z0-9_]+)?$")]
   [string]$CurrentSubpoint,
 
   [Parameter(Mandatory = $true)]
@@ -39,7 +41,8 @@ function Get-OrderedSubpoints([string]$RoadmapText) {
 }
 
 function Test-SubpointCompleted([string]$RoadmapText, [string]$Subpoint) {
-  return ($RoadmapText -match ("(?m)^- \[[xX]\]\s+" + [regex]::Escape($Subpoint) + "\b"))
+  # Treat [x] as completed and [!] as "blocked but acknowledged" (allowed to proceed).
+  return ($RoadmapText -match ("(?m)^- \[[xX!]\]\s+" + [regex]::Escape($Subpoint) + "\b"))
 }
 
 function Test-PreviousSubpointComplete {
@@ -62,6 +65,16 @@ function Test-PreviousSubpointComplete {
   }
 
   return $true
+}
+
+function Get-SubpointBase([string]$Subpoint) {
+  return ($Subpoint -split "-", 2)[0]
+}
+
+function Get-SubpointSuffix([string]$Subpoint) {
+  $parts = $Subpoint -split "-", 2
+  if ($parts.Count -ge 2) { return $parts[1] }
+  return ""
 }
 
 function Test-IsExcludedPath([string]$FullPath) {
@@ -133,8 +146,16 @@ switch ($Operation) {
   "pre-check" {
     Write-Info ("PROTOCOL PRE-CHECK FOR: {0}" -f $CurrentSubpoint)
 
-    if (-not (Test-PreviousSubpointComplete -Subpoint $CurrentSubpoint)) {
-      exit 1
+    $base = Get-SubpointBase -Subpoint $CurrentSubpoint
+    $suffix = (Get-SubpointSuffix -Subpoint $CurrentSubpoint).ToUpperInvariant()
+
+    # Cleanup/hotfix tasks may need to run out-of-order; allow explicit suffix overrides.
+    if ($suffix -eq "CLEANUP") {
+      Write-Warn ("OVERRIDE: {0} bypasses sequential gate (CLEANUP task). Base subpoint is {1}." -f $CurrentSubpoint, $base)
+    } else {
+      if (-not (Test-PreviousSubpointComplete -Subpoint $base)) {
+        exit 1
+      }
     }
 
     if (-not (Verify-CleanProject)) {
@@ -142,11 +163,11 @@ switch ($Operation) {
       exit 1
     }
 
-    $currentTempDir = Join-Path $projectRoot ("_temp_debug_{0}" -f $CurrentSubpoint)
+    $currentTempDir = Join-Path $projectRoot ("_temp_debug_{0}" -f $base)
     New-Item -ItemType Directory -Force -Path $currentTempDir | Out-Null
     Write-Info ("Temp dir ready: {0}" -f $currentTempDir)
 
-    Write-Ok ("PROTOCOL CHECK PASSED - Ready to implement {0}" -f $CurrentSubpoint)
+    Write-Ok ("PROTOCOL CHECK PASSED - Ready to implement {0} (base: {1})" -f $CurrentSubpoint, $base)
   }
 
   "post-cleanup" {

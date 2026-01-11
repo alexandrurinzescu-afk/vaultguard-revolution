@@ -1,6 +1,6 @@
 param(
   [Parameter(Mandatory = $false)]
-  [string]$ProjectRoot = "C:\Users\pc\AndroidStudioProjects\VaultGuard",
+  [string]$ProjectRoot = "",
 
   [Parameter(Mandatory = $true)]
   [string]$Command,
@@ -28,6 +28,11 @@ function Ensure-Dir([string]$p) {
   if (-not (Test-Path -LiteralPath $p)) { New-Item -ItemType Directory -Force -Path $p | Out-Null }
 }
 
+function Html-Encode([string]$s) {
+  # PowerShell 5.1 friendly HTML encode
+  return [System.Net.WebUtility]::HtmlEncode($s)
+}
+
 function Section([string]$Title) {
   Write-Host ""
   Write-Host ("=" * 80) -ForegroundColor DarkGray
@@ -47,6 +52,10 @@ function Try-GetLatestDebugApk([string]$ProjectRootPath) {
   $apks = @(Get-ChildItem -Path $apkDir -Filter *.apk -File -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending)
   if ($apks.Count -eq 0) { return $null }
   return $apks[0]
+}
+
+if ([string]::IsNullOrWhiteSpace($ProjectRoot)) {
+  $ProjectRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 }
 
 if (-not (Test-Path -LiteralPath $ProjectRoot)) {
@@ -163,6 +172,60 @@ Next:
   $statusText | Out-File -FilePath $latestStatusPath -Encoding UTF8
   $statusText | Out-File -FilePath $statusTsPath -Encoding UTF8
 
+  # Also generate an HTML version with a real click-to-copy button.
+  # NOTE: Cursor chat cannot run JS, but a local HTML file in a browser can.
+  $latestHtmlPath = Join-Path $reportsDir "CHAT_STATUS_LATEST.html"
+  $statusHtml = @"
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>VaultGuard - CHAT_STATUS_LATEST</title>
+  <style>
+    body { background:#0f0f10; color:#fff; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; padding:16px; }
+    .row { display:flex; gap:10px; align-items:center; margin-bottom:10px; flex-wrap:wrap; }
+    button { background:#2b2b2e; color:#fff; border:1px solid #444; border-radius:6px; padding:8px 10px; cursor:pointer; }
+    button:hover { background:#34343a; }
+    .hint { color:#bdbdbd; font-size:12px; }
+    pre { cursor:pointer; padding:12px; background:#1a1a1a; color:#fff; border:1px solid #444; border-radius:8px; white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="row">
+    <button id="copyBtn" type="button">Copy report</button>
+    <span class="hint">Tip: click anywhere inside the report to copy all</span>
+  </div>
+  <pre id="executionReport">$(Html-Encode $statusText)</pre>
+  <script>
+    (function () {
+      var el = document.getElementById('executionReport');
+      var btn = document.getElementById('copyBtn');
+      function selectAll() {
+        var range = document.createRange();
+        range.selectNodeContents(el);
+        var sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+      }
+      function copyAll() {
+        selectAll();
+        var text = el.innerText || el.textContent || '';
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).catch(function () { document.execCommand('copy'); });
+        } else {
+          document.execCommand('copy');
+        }
+      }
+      el.addEventListener('click', copyAll);
+      btn.addEventListener('click', copyAll);
+    })();
+  </script>
+</body>
+</html>
+"@
+  $statusHtml | Out-File -FilePath $latestHtmlPath -Encoding UTF8
+
   Section "STATUS (LATEST)"
   if ($status -eq "SUCCESS") {
     Write-Host $statusText -ForegroundColor Green
@@ -172,5 +235,6 @@ Next:
 
   Write-Host ("Saved latest status to: {0}" -f $latestStatusPath) -ForegroundColor DarkGray
   Write-Host ("Saved status snapshot to: {0}" -f $statusTsPath) -ForegroundColor DarkGray
+  Write-Host ("Saved HTML click-to-copy report to: {0}" -f $latestHtmlPath) -ForegroundColor DarkGray
 }
 

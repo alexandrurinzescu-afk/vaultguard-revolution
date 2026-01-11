@@ -1,7 +1,7 @@
 ## VaultGuard Security Guide (Phase 2 target)
 
 ### Current state (repo today)
-- `KeystoreManager` exists but is **TODO**.
+- `KeystoreManager` exists (implemented in `com.vaultguard.security.keystore.KeystoreManager`).
 - Enrollment flow is **TODO**.
 - Reporting exists (HTML) and must avoid sensitive logs.
 
@@ -21,7 +21,7 @@
   - Create a redaction helper to prevent logging secrets.
 
 ### Checklist
-- [ ] Implement `KeystoreManager` (generate key, encrypt, decrypt)
+- [x] Implement `KeystoreManager` (generate key, encrypt, decrypt)
 - [ ] Implement enrollment pipeline (capture → verify → store encrypted template)
 - [ ] Add threat model doc and update retention policy for any persisted logs
 - [ ] Add basic tests for crypto primitives (unit tests)

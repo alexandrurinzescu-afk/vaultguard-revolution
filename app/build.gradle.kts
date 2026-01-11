@@ -20,7 +20,9 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            // Maximum security hardening: enable shrinking/obfuscation for release builds.
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -51,6 +53,7 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+        isCoreLibraryDesugaringEnabled = true
     }
 
     kotlinOptions {
@@ -85,14 +88,29 @@ dependencies {
 
     // ML Kit (face detection)
     implementation("com.google.mlkit:face-detection:16.1.6")
+    // ML Kit (document scanner v2.1.6)
+    implementation("com.google.mlkit:text-recognition:16.0.0")
+    implementation("com.google.mlkit:text-recognition-chinese:16.0.0")
+    implementation("com.google.mlkit:text-recognition-devanagari:16.0.0")
+    implementation("com.google.mlkit:text-recognition-japanese:16.0.0")
+    implementation("com.google.mlkit:text-recognition-korean:16.0.0")
+    implementation("com.google.mlkit:object-detection:17.0.0")
+    implementation("com.google.mlkit:barcode-scanning:17.2.0")
 
     // Views
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("com.google.android.material:material:1.12.0")
 
+    // Biometrics (BiometricPrompt)
+    implementation("androidx.biometric:biometric:1.1.0")
+
     // Tests (basic scaffold)
     testImplementation("junit:junit:4.13.2")
+    androidTestImplementation("androidx.test:core-ktx:1.6.1")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
+
+    // Java time (java.time.*) support for API < 26
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
 }
 
