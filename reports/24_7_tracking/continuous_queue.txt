@@ -1,5 +1,4 @@
-﻿TASK|2.5.8|iCloud/Cloud backup rules (documents only; NOT biometric templates; encrypted; opt-in)|echo TODO: implement 2.5.8 - iCloud/Cloud backup rules (documents only; NOT biometric templates; encrypted; opt-in)
-TASK|5.1.1|Google Play Store listing|echo TODO: implement 5.1.1 - Google Play Store listing
+﻿TASK|5.1.1|Google Play Store listing|echo TODO: implement 5.1.1 - Google Play Store listing
 TASK|5.1.2|App Store Optimization|echo TODO: implement 5.1.2 - App Store Optimization
 TASK|5.1.3|Screenshots & promotional materials|echo TODO: implement 5.1.3 - Screenshots & promotional materials
 TASK|5.1.4|Privacy policy & terms|echo TODO: implement 5.1.4 - Privacy policy & terms
