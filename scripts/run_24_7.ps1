@@ -36,19 +36,21 @@ if ([string]::IsNullOrWhiteSpace($ProjectRoot)) {
 Set-Location -LiteralPath $ProjectRoot
 
 $reportsDir = Join-Path $ProjectRoot "reports"
-$logsDir = Join-Path $reportsDir "continuous_logs"
+$trackingDir = Join-Path $reportsDir "24_7_tracking"
+$logsDir = Join-Path $trackingDir "continuous_logs"
 Ensure-Dir $reportsDir
+Ensure-Dir $trackingDir
 Ensure-Dir $logsDir
 
 if ([string]::IsNullOrWhiteSpace($QueueFile)) {
-  $QueueFile = Join-Path $reportsDir "continuous_queue.txt"
+  $QueueFile = Join-Path $trackingDir "task_queue.txt"
 }
 if ([string]::IsNullOrWhiteSpace($ControlSignalFile)) {
-  $ControlSignalFile = Join-Path $reportsDir "control_signal.txt"
+  $ControlSignalFile = Join-Path $trackingDir "control_signal.txt"
 }
 
-$progressCsv = Join-Path $reportsDir "progress_tracker.csv"
-$adminBlockersMd = Join-Path $reportsDir "admin_blockers.md"
+$progressCsv = Join-Path $trackingDir "progress.csv"
+$adminBlockersMd = Join-Path $trackingDir "admin_blockers.md"
 
 if (-not (Test-Path -LiteralPath $progressCsv)) {
   "Timestamp,Task,Status,DurationSeconds,Notes" | Out-File -FilePath $progressCsv -Encoding UTF8
@@ -99,7 +101,12 @@ function Log-AdminBlocker([string]$Task, [string]$Command, [string]$Reason) {
 function Pop-NextQueueLine {
   $lines = @()
   try { $lines = @(Get-Content -LiteralPath $QueueFile -ErrorAction SilentlyContinue) } catch { }
-  $lines = $lines | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne "" }
+  # IMPORTANT: force array output so a single remaining queue line doesn't collapse into a scalar string.
+  $lines = @(
+    $lines |
+      ForEach-Object { [string]$_.Trim() } |
+      Where-Object { $_ -ne "" -and (-not $_.StartsWith("#")) }
+  )
   if ($lines.Count -eq 0) { return $null }
   $head = $lines[0]
   $rest = @()
@@ -120,7 +127,7 @@ function Read-ControlSignal {
 Write-Host "RUN_24_7 - START" -ForegroundColor Cyan
 Write-Host ("ProjectRoot: {0}" -f $ProjectRoot) -ForegroundColor Gray
 Write-Host ("QueueFile:   {0}" -f $QueueFile) -ForegroundColor Gray
-Write-Host ("Control:     {0} (write STOP to stop)" -f $ControlSignalFile) -ForegroundColor Gray
+Write-Host ("Control:     {0} (write STOP/PAUSE to control)" -f $ControlSignalFile) -ForegroundColor Gray
 Write-Host ("Admin:       {0}" -f (Test-IsAdmin)) -ForegroundColor Gray
 Write-Host ""
 
@@ -144,6 +151,7 @@ while ($true) {
     continue
   }
 
+  $line = [string]$line
   if ($line.ToUpperInvariant() -eq "STOP") {
     Write-Host "STOP command received from queue. Exiting." -ForegroundColor Yellow
     break
@@ -230,6 +238,28 @@ while ($true) {
     }
   }
 }
+
+try {
+  $finalPath = Join-Path $trackingDir ("final_report_{0}.md" -f (NowTs))
+  $lines = @()
+  $lines += ("# FINAL REPORT ({0})" -f (NowIso))
+  $lines += ""
+  $lines += ("- Queue: {0}" -f $QueueFile)
+  $lines += ("- Progress: {0}" -f $progressCsv)
+  $lines += ("- Admin blockers: {0}" -f $adminBlockersMd)
+  $lines += ""
+  $lines += "## Summary"
+  if (Test-Path -LiteralPath $progressCsv) {
+    $rows = @(Get-Content -LiteralPath $progressCsv -ErrorAction SilentlyContinue | Select-Object -Skip 1)
+    $lines += ("- Total rows: {0}" -f $rows.Count)
+    $lines += ("- SUCCESS: {0}" -f ($rows | Select-String -SimpleMatch ",\"SUCCESS\"," | Measure-Object).Count)
+    $lines += ("- ADMIN_BLOCKED: {0}" -f ($rows | Select-String -SimpleMatch ",\"ADMIN_BLOCKED\"," | Measure-Object).Count)
+    $lines += ("- FAILED: {0}" -f ($rows | Select-String -SimpleMatch ",\"FAILED\"," | Measure-Object).Count)
+  } else {
+    $lines += "- No progress file found."
+  }
+  ($lines -join "`r`n") | Out-File -FilePath $finalPath -Encoding UTF8
+} catch { }
 
 Write-Host "RUN_24_7 - END" -ForegroundColor Cyan
 

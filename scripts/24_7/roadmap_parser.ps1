@@ -1,110 +1,85 @@
 param(
   [Parameter(Mandatory = $false)]
-  [string]$ProjectRoot = "",
-
-  [Parameter(Mandatory = $false)]
   [string]$RoadmapPath = "",
 
   [Parameter(Mandatory = $false)]
-  [string]$OutQueueJson = "",
+  [string]$OutJson = "",
 
   [Parameter(Mandatory = $false)]
-  [string]$OutQueueTxt = ""
+  [string]$OutQueue = ""
 )
 
-# Parses roadmap checklist lines and produces:
-# - task_queue.json (ordered tasks)
-# - continuous_queue.txt (seed queue)
-#
-# NOTE: This parser only schedules executable "build/test" commands by default.
-# Implementation tasks (writing code) still require developer action.
+# Roadmap parser: extract remaining subpoints from VAULTGUARD_REVOLUTION_ROADMAP.md into task_queue.json.
+# Also produces a simple queue file (task_queue.txt) for the 24/7 runner.
+# PowerShell 5.1 friendly.
 
 $ErrorActionPreference = "Stop"
 
-function Ensure-Dir([string]$p) { if (-not (Test-Path -LiteralPath $p)) { New-Item -ItemType Directory -Force -Path $p | Out-Null } }
-
-if ([string]::IsNullOrWhiteSpace($ProjectRoot)) {
-  $ProjectRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\\..")).Path
-}
-
+$repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\\..")).Path
 if ([string]::IsNullOrWhiteSpace($RoadmapPath)) {
-  # Support common names
-  $candidates = @(
-    (Join-Path $ProjectRoot "VAULTGUARD_REVOLUTION_ROADMAP.md"),
-    (Join-Path $ProjectRoot "VAULTGUARD_ROADMAP.md")
-  )
-  $RoadmapPath = $candidates | Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1
+  $RoadmapPath = Join-Path $repoRoot "VAULTGUARD_REVOLUTION_ROADMAP.md"
+}
+if ([string]::IsNullOrWhiteSpace($OutJson)) {
+  $OutJson = Join-Path $repoRoot "reports\\24_7_tracking\\task_queue.json"
+}
+if ([string]::IsNullOrWhiteSpace($OutQueue)) {
+  $OutQueue = Join-Path $repoRoot "reports\\24_7_tracking\\task_queue.txt"
 }
 
-if (-not $RoadmapPath -or -not (Test-Path -LiteralPath $RoadmapPath)) {
-  throw "Roadmap file not found."
+if (-not (Test-Path -LiteralPath $RoadmapPath)) {
+  throw ("Roadmap not found: {0}" -f $RoadmapPath)
 }
 
-$trackDir = Join-Path $ProjectRoot "reports\\24_7_tracking"
-Ensure-Dir $trackDir
-Ensure-Dir (Join-Path $trackDir "checkpoint_backups")
-Ensure-Dir (Join-Path $trackDir "logs")
+function Ensure-Dir([string]$p) { if (-not (Test-Path -LiteralPath $p)) { New-Item -ItemType Directory -Force -Path $p | Out-Null } }
+Ensure-Dir (Split-Path -Parent $OutJson)
 
-if ([string]::IsNullOrWhiteSpace($OutQueueJson)) {
-  $OutQueueJson = Join-Path $trackDir "task_queue.json"
-}
-if ([string]::IsNullOrWhiteSpace($OutQueueTxt)) {
-  $OutQueueTxt = Join-Path $trackDir "continuous_queue.txt"
-}
+$text = Get-Content -LiteralPath $RoadmapPath -Raw -ErrorAction Stop
 
-$raw = Get-Content -LiteralPath $RoadmapPath -Raw -ErrorAction Stop
-# Match checklist task lines like: - [ ] 2.1.5 Something
-# IMPORTANT: In PowerShell strings, backslash is not an escape character, so do NOT double-escape regex tokens.
-$matches = [regex]::Matches($raw, "(?m)^-\s*\[\s*\]\s+(\d+\.\d+\.\d+)\b\s+(.+)$")
-$pending = @()
-foreach ($m in $matches) {
-  $pending += [pscustomobject]@{
-    subpoint = $m.Groups[1].Value.Trim()
-    description = $m.Groups[2].Value.Trim()
-  }
-}
-
-function Weight([string]$sp) {
-  # Priority overrides: 2.1.5 first, then 2.5.*, then 5.1.*
-  if ($sp -eq "2.1.5") { return 0 }
-  if ($sp -like "2.5.*") { return 1 }
-  if ($sp -like "5.1.*") { return 2 }
-  return 10
-}
-
-$ordered = $pending | Sort-Object @{Expression={ Weight $_.subpoint }}, @{Expression={ $_.subpoint }}
-
-# Build queue items:
-# - We seed 2.1.5 with a "run unit tests" command (non-interactive).
-# - Other items are placeholders (PAUSE) because they require code work.
+# Parse checklist lines: - [ ] 2.1.5 Something
+$pattern = '(?m)^- \[([ xX!])\]\s+(\d+\.\d+\.\d+)\s+(.*)$'
+$matches = [regex]::Matches($text, $pattern)
 $items = @()
-foreach ($t in $ordered) {
-  $cmd = "echo TODO: implement {0} - {1}" -f $t.subpoint, $t.description
-  if ($t.subpoint -eq "2.1.5") {
-    $cmd = ".\\gradlew.bat :app:testDebugUnitTest --no-daemon --console=plain"
-  }
-  $items += [pscustomobject]@{
-    type = "TASK"
-    subpoint = $t.subpoint
-    description = $t.description
-    command = $cmd
+foreach ($m in $matches) {
+  $state = $m.Groups[1].Value
+  $id = $m.Groups[2].Value.Trim()
+  $desc = $m.Groups[3].Value.Trim()
+  $done = ($state -match "^[xX]$")
+  if (-not $done) {
+    $items += [pscustomobject]@{
+      subpoint = $id
+      description = $desc
+      status = "PENDING"
+    }
   }
 }
 
-$json = $items | ConvertTo-Json -Depth 6
-$json | Out-File -FilePath $OutQueueJson -Encoding UTF8
-
-$lines = @(
-  "# Generated from: $RoadmapPath",
-  "# Queue format: TASK|<Subpoint>|<Description>|<Command>",
-  "# STOP to stop.",
-  ""
-)
-foreach ($it in $items) {
-  $lines += ("TASK|{0}|{1}|{2}" -f $it.subpoint, $it.description.Replace("|","/"), $it.command)
+# Priority: ensure 2.1.5 first if present, then 2.5.* (GDPR/privacy), then everything else in appearance order.
+function Score([string]$id) {
+  if ($id -eq "2.1.5") { return 0 }
+  if ($id -like "2.5.*") { return 1 }
+  return 2
 }
-$lines | Out-File -FilePath $OutQueueTxt -Encoding UTF8
 
-Write-Output ("OK: wrote {0}" -f $OutQueueJson)
-Write-Output ("OK: wrote {0}" -f $OutQueueTxt)
+$ordered = $items | Sort-Object @{Expression={ Score $_.subpoint }; Ascending=$true}, @{Expression={ $_.subpoint }; Ascending=$true}
 
+# Build queue (safe default commands):
+# - For 2.1.5 we run unit tests (will not complete the roadmap item; only validates current suite).
+# - For others we leave CMD as empty so user fills in; runner will idle if queue has no executable lines.
+$queueLines = @()
+foreach ($it in $ordered) {
+  if ($it.subpoint -eq "2.1.5") {
+    $queueLines += ("TASK|{0}|{1}|cmd /d /c .\\gradlew.bat :app:testDebugUnitTest --no-daemon --console=plain" -f $it.subpoint, $it.description)
+  }
+}
+
+$jsonObj = [pscustomobject]@{
+  generatedAt = (Get-Date -Format "yyyy-MM-dd HH:mm:ss")
+  roadmap = $RoadmapPath
+  pending = $ordered
+}
+
+$jsonObj | ConvertTo-Json -Depth 6 | Out-File -FilePath $OutJson -Encoding UTF8
+($queueLines -join "`r`n") | Out-File -FilePath $OutQueue -Encoding UTF8
+
+Write-Output ("WROTE_JSON={0}" -f $OutJson)
+Write-Output ("WROTE_QUEUE={0}" -f $OutQueue)

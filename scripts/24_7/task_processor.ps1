@@ -1,5 +1,15 @@
 param(
   [Parameter(Mandatory = $true)]
+  [string]$Line
+)
+
+# Minimal task processor for 24/7 system.
+# The main loop lives in scripts/run_24_7.ps1. This helper exists to match the requested structure.
+
+Write-Output $Line
+
+param(
+  [Parameter(Mandatory = $true)]
   [string]$Mode,
 
   [Parameter(Mandatory = $false)]
