@@ -1,12 +1,7 @@
 ﻿{
-    "generatedAt":  "2026-01-12 18:04:27",
+    "generatedAt":  "2026-01-12 19:56:52",
     "roadmap":  "C:\\Users\\pc\\VaultGuardRevolution\\VAULTGUARD_REVOLUTION_ROADMAP.md",
     "pending":  [
-                    {
-                        "subpoint":  "2.1.5",
-                        "description":  "Unit tests pentru Keystore (JVM unit tests pending)",
-                        "status":  "PENDING"
-                    },
                     {
                         "subpoint":  "2.5.1",
                         "description":  "Legal disclaimer (no official identity verification; no government recognition; no KYC/AML)",

@@ -46,7 +46,7 @@
 - [x] 2.1.2 Implementare Android KeyStore
 - [x] 2.1.3 Generare chei AES-GCM
 - [x] 2.1.4 Operatii criptografice de baza (encrypt/decrypt + metadata)
-- [x] 2.1.5 Unit tests pentru Keystore (JVM unit tests pending)
+- [x] 2.1.5 Unit tests pentru Keystore (JVM) - PASS (:app:testDebugUnitTest)
 
 ## 2.2 BIOMETRIC AUTHENTICATION
 - [x] 2.2.1 Integrare BiometricPrompt API (pentru gate de securitate UI)
@@ -178,9 +178,9 @@
 ---
 
 ## PROGRES GLOBAL (manual)
-- Completat: 17 / 95
-- In progres: 2.1.5 (tests) + 1.2.3 (specs)
-- Urmatorul subpunct recomandat: **2.1.5** (Unit tests pentru Keystore)
+- Completat: 18 / 95
+- In progres: 1.2.3 (specs) + 2.5.* (GDPR & privacy)
+- Urmatorul subpunct recomandat: **2.5.1** (Legal disclaimer)
 
 ---
 
