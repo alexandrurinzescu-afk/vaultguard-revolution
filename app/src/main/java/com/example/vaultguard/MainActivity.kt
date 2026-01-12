@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.example.vaultguard.gdpr.BiometricConsentActivity
 import com.example.vaultguard.gdpr.DisclaimerActivity
 import com.example.vaultguard.gdpr.GdprPrefs
 import com.example.vaultguard.gdpr.PrivacyPolicyActivity
@@ -58,9 +59,27 @@ class MainActivity : ComponentActivity() {
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     Button(onClick = {
-                        startActivity(Intent(this@MainActivity, BiometricSettingsActivity::class.java))
+                        if (!GdprPrefs.isBiometricConsentAccepted(this@MainActivity)) {
+                            startActivity(
+                                Intent(this@MainActivity, BiometricConsentActivity::class.java)
+                                    .putExtra(BiometricConsentActivity.EXTRA_MODE, BiometricConsentActivity.MODE_GATE)
+                                    .putExtra(BiometricConsentActivity.EXTRA_NEXT, BiometricConsentActivity.NEXT_BIOMETRIC_SETTINGS)
+                            )
+                        } else {
+                            startActivity(Intent(this@MainActivity, BiometricSettingsActivity::class.java))
+                        }
                     }) {
                         Text("Open Biometric UI (2.1.2)")
+                    }
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Button(onClick = {
+                        startActivity(
+                            Intent(this@MainActivity, BiometricConsentActivity::class.java)
+                                .putExtra(BiometricConsentActivity.EXTRA_MODE, BiometricConsentActivity.MODE_MANAGE)
+                                .putExtra(BiometricConsentActivity.EXTRA_NEXT, BiometricConsentActivity.NEXT_MAIN)
+                        )
+                    }) {
+                        Text("Manage Biometric Consent (2.5.3)")
                     }
                     Spacer(modifier = Modifier.height(12.dp))
                     Button(onClick = {

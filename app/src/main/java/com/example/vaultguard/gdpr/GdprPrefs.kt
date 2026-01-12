@@ -1,6 +1,8 @@
 package com.example.vaultguard.gdpr
 
 import android.content.Context
+import java.time.Instant
+import java.time.format.DateTimeFormatter
 
 /**
  * Minimal GDPR/privacy gate preferences.
@@ -12,6 +14,11 @@ object GdprPrefs {
 
     private const val KEY_LEGAL_DISCLAIMER_ACCEPTED = "legal_disclaimer_accepted"
     private const val KEY_PRIVACY_POLICY_ACCEPTED = "privacy_policy_accepted"
+    private const val KEY_BIOMETRIC_CONSENT_ACCEPTED = "biometric_consent_accepted"
+    private const val KEY_BIOMETRIC_CONSENT_TIMESTAMP_ISO = "biometric_consent_ts_iso"
+    private const val KEY_BIOMETRIC_CONSENT_VERSION = "biometric_consent_version"
+
+    private const val BIOMETRIC_CONSENT_VERSION = 1
 
     fun isLegalDisclaimerAccepted(context: Context): Boolean {
         return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -35,6 +42,41 @@ object GdprPrefs {
             .edit()
             .putBoolean(KEY_PRIVACY_POLICY_ACCEPTED, accepted)
             .apply()
+    }
+
+    fun isBiometricConsentAccepted(context: Context): Boolean {
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .getBoolean(KEY_BIOMETRIC_CONSENT_ACCEPTED, false)
+    }
+
+    fun biometricConsentTimestampIso(context: Context): String? {
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .getString(KEY_BIOMETRIC_CONSENT_TIMESTAMP_ISO, null)
+    }
+
+    fun biometricConsentVersion(context: Context): Int {
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .getInt(KEY_BIOMETRIC_CONSENT_VERSION, 0)
+    }
+
+    fun setBiometricConsentAccepted(context: Context, accepted: Boolean) {
+        val nowIso = DateTimeFormatter.ISO_INSTANT.format(Instant.now())
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putBoolean(KEY_BIOMETRIC_CONSENT_ACCEPTED, accepted)
+            .putInt(KEY_BIOMETRIC_CONSENT_VERSION, BIOMETRIC_CONSENT_VERSION)
+            .putString(KEY_BIOMETRIC_CONSENT_TIMESTAMP_ISO, nowIso)
+            .apply()
+
+        appendConsentLog(context, if (accepted) "BIOMETRIC_CONSENT_ACCEPTED" else "BIOMETRIC_CONSENT_REVOKED", nowIso)
+    }
+
+    private fun appendConsentLog(context: Context, event: String, isoTs: String) {
+        // Minimal local logging for audit/debug. No network, no analytics SDK.
+        runCatching {
+            val line = "$isoTs|$event|v=$BIOMETRIC_CONSENT_VERSION\n"
+            context.openFileOutput("consent_log.txt", Context.MODE_APPEND).use { it.write(line.toByteArray()) }
+        }
     }
 }
 

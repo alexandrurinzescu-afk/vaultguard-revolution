@@ -72,7 +72,7 @@
 ## 2.5 GDPR & PRIVACY COMPLIANCE (APP STORE + BIOMETRIE)
 - [x] 2.5.1 Legal disclaimer (no official identity verification; no government recognition; no KYC/AML)
 - [x] 2.5.2 Privacy policy in-app (accept/decline gateway) + link web
-- [ ] 2.5.3 Explicit biometric consent (separate consent for iris/palm vein processing; revoke anytime)
+- [x] 2.5.3 Explicit biometric consent (separate consent for iris/palm vein processing; revoke anytime)
 - [ ] 2.5.4 Data deletion flow (one-click delete all user data + keys) + confirmation UX
 - [ ] 2.5.5 Data export (user-controlled export of documents/metadata; redacted logs)
 - [ ] 2.5.6 Data minimization & retention (store only what is needed; define retention policy; no hidden tracking)
@@ -178,9 +178,9 @@
 ---
 
 ## PROGRES GLOBAL (manual)
-- Completat: 20 / 95
-- In progres: 1.2.3 (specs) + 2.5.3 (biometric consent)
-- Urmatorul subpunct recomandat: **2.5.3** (Explicit biometric consent)
+- Completat: 21 / 95
+- In progres: 1.2.3 (specs) + 2.5.4 (data deletion flow)
+- Urmatorul subpunct recomandat: **2.5.4** (Data deletion flow)
 
 ---
 

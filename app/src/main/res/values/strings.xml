@@ -14,4 +14,16 @@
     <string name="privacy_policy_url"></string>
     <string name="privacy_policy_accept">Accept</string>
     <string name="privacy_policy_decline">Decline</string>
+
+    <!-- 2.5.3 Explicit biometric consent (draft strings; must be surfaced in UI before marking fully done) -->
+    <string name="biometric_consent_title">Biometric consent</string>
+    <string name="biometric_consent_body">Before using biometric features, you must explicitly consent.\n\nWhat we process:\n- Biometric authentication signals (device biometrics via Android BiometricPrompt)\n- Optional biometric templates (iris/palm) if you enable those hardware modules later\n\nHow we use it (VaultGuard “First-to-Claim” concept):\n- You can register a local “claim” for your VaultGuard identity to reduce impersonation within this app.\n- This is NOT government identity verification and has no legal authority.\n\nYour rights:\n- You can revoke consent at any time.\n- If you revoke, biometric features will be disabled until you consent again.</string>
+    <string name="biometric_consent_accept">I consent</string>
+    <string name="biometric_consent_continue">Continue</string>
+    <string name="biometric_consent_decline">Decline (exit)</string>
+    <string name="biometric_consent_revoke">Revoke consent</string>
+    <string name="biometric_consent_revoke_title">Revoke biometric consent?</string>
+    <string name="biometric_consent_revoke_body">If you revoke consent, biometric features will be disabled until you consent again.</string>
+    <string name="biometric_consent_revoke_confirm">Revoke</string>
+    <string name="biometric_consent_revoke_cancel">Cancel</string>
 </resources>

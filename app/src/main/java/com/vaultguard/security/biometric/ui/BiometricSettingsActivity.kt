@@ -1,5 +1,6 @@
 package com.vaultguard.security.biometric.ui
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.compose.setContent
@@ -16,12 +17,25 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.FragmentActivity
+import com.example.vaultguard.gdpr.BiometricConsentActivity
+import com.example.vaultguard.gdpr.GdprPrefs
 import com.vaultguard.security.biometric.BiometricAuthManager
 import com.vaultguard.security.keystore.utils.Constants
 
 class BiometricSettingsActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // 2.5.3 hard gate: biometric features require explicit biometric consent.
+        if (!GdprPrefs.isBiometricConsentAccepted(this)) {
+            startActivity(
+                Intent(this, BiometricConsentActivity::class.java)
+                    .putExtra(BiometricConsentActivity.EXTRA_MODE, BiometricConsentActivity.MODE_GATE)
+                    .putExtra(BiometricConsentActivity.EXTRA_NEXT, BiometricConsentActivity.NEXT_BIOMETRIC_SETTINGS)
+            )
+            finish()
+            return
+        }
 
         // Prevent screenshots/screen recording of this security UI.
         @Suppress("DEPRECATION")
