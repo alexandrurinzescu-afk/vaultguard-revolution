@@ -107,16 +107,19 @@ if (Test-Path -LiteralPath $zipPath) { Remove-Item -LiteralPath $zipPath -Force 
 function Test-IsExcludedForBackup([string]$FullPath) {
   $p = $FullPath.ToLowerInvariant()
   return (
-    $p -like "*\\vaultguardrevolution\\.git\\*" -or
-    $p -like "*\\vaultguardrevolution\\.gradle\\*" -or
-    $p -like "*\\vaultguardrevolution\\.idea\\*" -or
-    $p -like "*\\vaultguardrevolution\\app\\build\\*" -or
-    $p -like "*\\vaultguardrevolution\\build\\*" -or
-    $p -like "*\\vaultguardrevolution\\backups\\*" -or
-    $p -like "*\\vaultguardrevolution\\reports\\*" -or
-    $p -like "*\\vaultguardrevolution\\chat_history\\*" -or
-    $p -like "*\\vaultguardrevolution\\.cxx\\*" -or
-    $p -like "*\\vaultguardrevolution\\.kotlin\\*"
+    # IMPORTANT:
+    # PowerShell does NOT treat backslash as an escape char in strings.
+    # Using "\\": means "two backslashes" and will NOT match normal Windows paths.
+    $p -like "*\vaultguardrevolution\.git\*" -or
+    $p -like "*\vaultguardrevolution\.gradle\*" -or
+    $p -like "*\vaultguardrevolution\.idea\*" -or
+    $p -like "*\vaultguardrevolution\app\build\*" -or
+    $p -like "*\vaultguardrevolution\build\*" -or
+    $p -like "*\vaultguardrevolution\backups\*" -or
+    $p -like "*\vaultguardrevolution\reports\*" -or
+    $p -like "*\vaultguardrevolution\chat_history\*" -or
+    $p -like "*\vaultguardrevolution\.cxx\*" -or
+    $p -like "*\vaultguardrevolution\.kotlin\*"
   )
 }
 
