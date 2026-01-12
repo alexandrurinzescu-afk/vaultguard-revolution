@@ -20,6 +20,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.vaultguard.gdpr.DisclaimerActivity
 import com.example.vaultguard.gdpr.GdprPrefs
+import com.example.vaultguard.gdpr.PrivacyPolicyActivity
 import com.vaultguard.document.DocumentScannerActivity
 import com.vaultguard.security.biometric.ui.BiometricSettingsActivity
 
@@ -31,6 +32,13 @@ class MainActivity : ComponentActivity() {
         // 2.5.1 "first-to-claim" gate: user must accept the legal disclaimer once before using the app.
         if (!GdprPrefs.isLegalDisclaimerAccepted(this)) {
             startActivity(Intent(this, DisclaimerActivity::class.java))
+            finish()
+            return
+        }
+
+        // 2.5.2 gate: privacy policy must be accepted before using the app.
+        if (!GdprPrefs.isPrivacyPolicyAccepted(this)) {
+            startActivity(Intent(this, PrivacyPolicyActivity::class.java))
             finish()
             return
         }

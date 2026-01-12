@@ -6,4 +6,12 @@
     <string name="legal_disclaimer_body">VaultGuard Revolution is a security and privacy tool. It is not an official identity verification system and is not affiliated with any government authority.\n\nVaultGuard Revolution is not a KYC/AML solution and must not be used as a substitute for legally required identity verification.\n\nAll security and authentication decisions remain the responsibility of the user and/or the integrating organization.</string>
     <string name="legal_disclaimer_accept">I understand</string>
     <string name="legal_disclaimer_decline">Exit app</string>
+
+    <!-- 2.5.2 Privacy policy (draft strings; must be surfaced in UI before marking fully done) -->
+    <string name="privacy_policy_title">Privacy policy</string>
+    <string name="privacy_policy_body">This is a draft privacy policy placeholder.\n\nVaultGuard Revolution is designed with privacy-by-default principles. The app processes biometric-related data only for user-initiated authentication flows.\n\nWe do not sell personal data.\n\nTODO (2.5.2): replace this with the full policy text, and keep it in sync with the web version.</string>
+    <string name="privacy_policy_view_online">View online (optional)</string>
+    <string name="privacy_policy_url"></string>
+    <string name="privacy_policy_accept">Accept</string>
+    <string name="privacy_policy_decline">Decline</string>
 </resources>
