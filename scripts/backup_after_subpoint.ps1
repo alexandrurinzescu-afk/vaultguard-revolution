@@ -123,7 +123,27 @@ function Test-IsExcludedForBackup([string]$FullPath) {
 $files = Get-ChildItem -LiteralPath $projectRoot -Recurse -File -Force |
   Where-Object { -not (Test-IsExcludedForBackup $_.FullName) }
 
-Compress-Archive -Path $files.FullName -DestinationPath $zipPath -CompressionLevel Optimal
+function Compress-Archive-Safe([string]$DestinationZip, [int]$Attempts = 3) {
+  $last = $null
+  for ($i = 1; $i -le $Attempts; $i++) {
+    try {
+      # Re-enumerate right before zipping to reduce race conditions with build outputs.
+      $fs = Get-ChildItem -LiteralPath $projectRoot -Recurse -File -Force |
+        Where-Object { -not (Test-IsExcludedForBackup $_.FullName) } |
+        Where-Object { Test-Path -LiteralPath $_.FullName }
+
+      if (Test-Path -LiteralPath $DestinationZip) { Remove-Item -LiteralPath $DestinationZip -Force }
+      Compress-Archive -Path $fs.FullName -DestinationPath $DestinationZip -CompressionLevel Optimal
+      return
+    } catch {
+      $last = $_
+      Start-Sleep -Seconds ([math]::Min(5, $i))
+    }
+  }
+  throw $last
+}
+
+Compress-Archive-Safe -DestinationZip $zipPath -Attempts 3
 Write-Ok ("Backup zip created: {0}" -f $zipPath)
 
 # 4) Append activity log
