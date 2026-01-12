@@ -26,4 +26,19 @@
     <string name="biometric_consent_revoke_body">If you revoke consent, biometric features will be disabled until you consent again.</string>
     <string name="biometric_consent_revoke_confirm">Revoke</string>
     <string name="biometric_consent_revoke_cancel">Cancel</string>
+
+    <!-- 2.5.4 Data deletion flow -->
+    <string name="data_delete_title">Delete all data</string>
+    <string name="data_delete_body">This will permanently delete all VaultGuard data stored on this device, including encrypted documents, metadata, and cryptographic keys.\n\nThis action cannot be undone.</string>
+    <string name="data_delete_type_to_confirm">Type DELETE to confirm</string>
+    <string name="data_delete_confirm_button">Delete now</string>
+    <string name="data_delete_cancel_button">Cancel</string>
+    <string name="data_delete_dialog_title">Confirm deletion</string>
+    <string name="data_delete_dialog_body">Are you sure you want to wipe ALL VaultGuard data and keys on this device?</string>
+    <string name="data_delete_dialog_confirm">Yes, wipe everything</string>
+    <string name="data_delete_dialog_cancel">No</string>
+    <string name="data_delete_done_title">Deletion completed</string>
+    <string name="data_delete_done_body">All VaultGuard data has been deleted from this device.</string>
+    <string name="data_delete_failed_title">Deletion failed</string>
+    <string name="data_delete_failed_body">Some data may not have been deleted. Please retry.</string>
 </resources>

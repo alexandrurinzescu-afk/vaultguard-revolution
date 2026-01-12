@@ -78,5 +78,12 @@ object GdprPrefs {
             context.openFileOutput("consent_log.txt", Context.MODE_APPEND).use { it.write(line.toByteArray()) }
         }
     }
+
+    fun wipeConsentAndPolicyPrefs(context: Context) {
+        runCatching {
+            context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit().clear().apply()
+        }
+        runCatching { context.deleteFile("consent_log.txt") }
+    }
 }
 

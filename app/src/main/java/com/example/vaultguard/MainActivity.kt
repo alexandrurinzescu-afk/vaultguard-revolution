@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.vaultguard.gdpr.BiometricConsentActivity
+import com.example.vaultguard.gdpr.DataDeletionActivity
 import com.example.vaultguard.gdpr.DisclaimerActivity
 import com.example.vaultguard.gdpr.GdprPrefs
 import com.example.vaultguard.gdpr.PrivacyPolicyActivity
@@ -86,6 +87,12 @@ class MainActivity : ComponentActivity() {
                         startActivity(Intent(this@MainActivity, DocumentScannerActivity::class.java))
                     }) {
                         Text("Open Document Scanner (2.1.6)")
+                    }
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Button(onClick = {
+                        startActivity(Intent(this@MainActivity, DataDeletionActivity::class.java))
+                    }) {
+                        Text("Delete all data (2.5.4)")
                     }
                 }
             }
