@@ -34,6 +34,12 @@
         </activity>
 
         <activity
+            android:name=".gdpr.DisclaimerActivity"
+            android:exported="false"
+            android:noHistory="true"
+            android:theme="@style/Theme.Material3.DayNight.NoActionBar" />
+
+        <activity
             android:name="com.vaultguard.security.biometric.ui.BiometricSettingsActivity"
             android:exported="false"
             android:theme="@style/Theme.Material3.DayNight.NoActionBar" />

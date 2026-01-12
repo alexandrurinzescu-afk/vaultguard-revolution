@@ -200,7 +200,8 @@ while ($true) {
       Start-Sleep -Seconds 5
       continue
     }
-    continue
+    # IMPORTANT: do NOT continue here.
+    # We successfully popped a line after refilling; fall through to process it.
   }
 
   $line = [string]$line

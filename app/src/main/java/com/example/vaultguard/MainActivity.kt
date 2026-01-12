@@ -18,6 +18,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.example.vaultguard.gdpr.DisclaimerActivity
+import com.example.vaultguard.gdpr.GdprPrefs
 import com.vaultguard.document.DocumentScannerActivity
 import com.vaultguard.security.biometric.ui.BiometricSettingsActivity
 
@@ -25,6 +27,14 @@ import com.vaultguard.security.biometric.ui.BiometricSettingsActivity
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // 2.5.1 "first-to-claim" gate: user must accept the legal disclaimer once before using the app.
+        if (!GdprPrefs.isLegalDisclaimerAccepted(this)) {
+            startActivity(Intent(this, DisclaimerActivity::class.java))
+            finish()
+            return
+        }
+
         setContent {
             Box(
                 modifier = Modifier

@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">VaultGuard Revolution</string>
+
+    <!-- 2.5.1 Legal disclaimer (draft strings; must be surfaced in UI before marking fully done) -->
+    <string name="legal_disclaimer_title">Legal disclaimer</string>
+    <string name="legal_disclaimer_body">VaultGuard Revolution is a security and privacy tool. It is not an official identity verification system and is not affiliated with any government authority.\n\nVaultGuard Revolution is not a KYC/AML solution and must not be used as a substitute for legally required identity verification.\n\nAll security and authentication decisions remain the responsibility of the user and/or the integrating organization.</string>
+    <string name="legal_disclaimer_accept">I understand</string>
+    <string name="legal_disclaimer_decline">Exit app</string>
 </resources>
