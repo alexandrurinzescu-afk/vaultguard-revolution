@@ -46,7 +46,7 @@
 - [x] 2.1.2 Implementare Android KeyStore
 - [x] 2.1.3 Generare chei AES-GCM
 - [x] 2.1.4 Operatii criptografice de baza (encrypt/decrypt + metadata)
-- [ ] 2.1.5 Unit tests pentru Keystore
+- [x] 2.1.5 Unit tests pentru Keystore
 
 ## 2.2 BIOMETRIC AUTHENTICATION
 - [x] 2.2.1 Integrare BiometricPrompt API (pentru gate de securitate UI)
@@ -196,4 +196,5 @@
 2. Checkpoint la fiecare 5 subpuncte (manual, deocamdata):
    - Full project backup .zip
    - Documentatie sincronizata
+
 

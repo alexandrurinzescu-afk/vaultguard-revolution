@@ -1,0 +1,10 @@
+﻿{
+    "timestamp":  "2026-01-12 09:18:29",
+    "online":  true,
+    "hosts":  [
+                  "1.1.1.1",
+                  "github.com",
+                  "api.openai.com"
+              ],
+    "pausedByMonitor":  false
+}

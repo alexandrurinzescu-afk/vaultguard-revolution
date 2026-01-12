@@ -53,7 +53,8 @@ $raw = Get-Content -LiteralPath $roadmapFile -Raw -ErrorAction Stop
 
 # Match lines like: - [ ] 1.1.5 ...
 # Replace only the first match for the given subpoint.
-$pattern = "(?m)^\\s*-\\s*\\[\\s\\]\\s+" + [regex]::Escape($numericSubpoint) + "\\b"
+# IMPORTANT: In PowerShell strings, backslash is not an escape character, so do NOT double-escape regex tokens.
+$pattern = "(?m)^\s*-\s*\[\s\]\s+" + [regex]::Escape($numericSubpoint) + "\b"
 if ($raw -match $pattern) {
   $raw2 = [regex]::Replace($raw, $pattern, ("- [x] " + $numericSubpoint), 1)
   Set-Content -LiteralPath $roadmapFile -Value $raw2 -Encoding UTF8

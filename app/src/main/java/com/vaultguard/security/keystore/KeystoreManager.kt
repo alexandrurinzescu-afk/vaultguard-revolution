@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Build
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
+import com.vaultguard.security.keystore.crypto.AesGcmCrypto
 import com.vaultguard.security.keystore.exceptions.KeystoreException
 import com.vaultguard.security.keystore.models.EncryptionResult
 import com.vaultguard.security.keystore.utils.Constants
@@ -48,15 +49,14 @@ class KeystoreManager(
     fun encrypt(data: ByteArray, alias: String = Constants.DEFAULT_KEY_ALIAS): EncryptionResult {
         try {
             val key = getOrCreateAesKey(alias)
-            val cipher = Cipher.getInstance(Constants.AES_MODE)
 
             // Force 12-byte IV for GCM.
-            val iv = ByteArray(Constants.GCM_IV_BYTES)
-            secureRandom.nextBytes(iv)
-            val spec = GCMParameterSpec(Constants.GCM_TAG_BITS, iv)
-
-            cipher.init(Cipher.ENCRYPT_MODE, key, spec)
-            val ciphertext = cipher.doFinal(data)
+            val iv = AesGcmCrypto.generateIv(secureRandom)
+            val ciphertext = AesGcmCrypto.encrypt(
+                plaintext = data,
+                key = key,
+                iv = iv,
+            )
 
             return EncryptionResult(
                 encryptedData = ciphertext,
@@ -74,10 +74,11 @@ class KeystoreManager(
     ): ByteArray {
         try {
             val key = getOrCreateAesKey(alias)
-            val cipher = Cipher.getInstance(Constants.AES_MODE)
-            val spec = GCMParameterSpec(Constants.GCM_TAG_BITS, iv)
-            cipher.init(Cipher.DECRYPT_MODE, key, spec)
-            return cipher.doFinal(encryptedData)
+            return AesGcmCrypto.decrypt(
+                ciphertext = encryptedData,
+                key = key,
+                iv = iv,
+            )
         } catch (t: Throwable) {
             throw KeystoreException("Decryption failed for alias=$alias", t)
         }
