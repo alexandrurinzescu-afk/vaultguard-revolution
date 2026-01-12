@@ -41,4 +41,13 @@
     <string name="data_delete_done_body">All VaultGuard data has been deleted from this device.</string>
     <string name="data_delete_failed_title">Deletion failed</string>
     <string name="data_delete_failed_body">Some data may not have been deleted. Please retry.</string>
+
+    <!-- 2.5.5 Data export -->
+    <string name="data_export_title">Export my data</string>
+    <string name="data_export_body">Generate a GDPR data portability package. This export includes:\n- Document metadata\n- Consent history\n- Encrypted document backup (no plaintext)\n\nIt does NOT include biometric templates.</string>
+    <string name="data_export_generate">Generate export ZIP</string>
+    <string name="data_export_generating">Generating…</string>
+    <string name="data_export_share">Share export ZIP</string>
+    <string name="data_export_done">Export ready</string>
+    <string name="data_export_error">Export failed</string>
 </resources>

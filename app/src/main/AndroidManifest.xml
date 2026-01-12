@@ -19,6 +19,16 @@
         android:supportsRtl="true"
         tools:targetApi="31"
         tools:ignore="GoogleAppIndexingWarning">
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
         
         <!-- ✅ ADEVĂRATA REVOLUȚIE, LANSATĂ DIN MAINACTIVITY -->
         <activity
@@ -53,6 +63,11 @@
 
         <activity
             android:name=".gdpr.DataDeletionActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Material3.DayNight.NoActionBar" />
+
+        <activity
+            android:name=".gdpr.DataExportActivity"
             android:exported="false"
             android:theme="@style/Theme.Material3.DayNight.NoActionBar" />
 

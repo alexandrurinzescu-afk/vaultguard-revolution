@@ -20,6 +20,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.vaultguard.gdpr.BiometricConsentActivity
 import com.example.vaultguard.gdpr.DataDeletionActivity
+import com.example.vaultguard.gdpr.DataExportActivity
 import com.example.vaultguard.gdpr.DisclaimerActivity
 import com.example.vaultguard.gdpr.GdprPrefs
 import com.example.vaultguard.gdpr.PrivacyPolicyActivity
@@ -93,6 +94,12 @@ class MainActivity : ComponentActivity() {
                         startActivity(Intent(this@MainActivity, DataDeletionActivity::class.java))
                     }) {
                         Text("Delete all data (2.5.4)")
+                    }
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Button(onClick = {
+                        startActivity(Intent(this@MainActivity, DataExportActivity::class.java))
+                    }) {
+                        Text("Export my data (2.5.5)")
                     }
                 }
             }
