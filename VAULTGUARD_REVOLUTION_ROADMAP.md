@@ -85,9 +85,9 @@
 - [x] 2.5.3 Explicit biometric consent (separate consent for iris/palm vein processing; revoke anytime)
 - [x] 2.5.4 Data deletion flow (one-click delete all user data + keys) + confirmation UX
 - [x] 2.5.5 Data export (user-controlled export of documents/metadata; redacted logs)
-- [ ] 2.5.6 Data minimization & retention (store only what is needed; define retention policy; no hidden tracking)
-- [ ] 2.5.7 No background biometric capture (foreground-only; user-initiated prompts)
-- [ ] 2.5.8 iCloud/Cloud backup rules (documents only; NOT biometric templates; encrypted; opt-in)
+- [x] 2.5.6 Data minimization & retention (store only what is needed; define retention policy; no hidden tracking)
+- [x] 2.5.7 No background biometric capture (foreground-only; user-initiated prompts)
+- [x] 2.5.8 iCloud/Cloud backup rules (documents only; NOT biometric templates; encrypted; opt-in)
 
 ---
 
@@ -206,6 +206,7 @@
 2. Checkpoint la fiecare 5 subpuncte (manual, deocamdata):
    - Full project backup .zip
    - Documentatie sincronizata
+
 
 
 
