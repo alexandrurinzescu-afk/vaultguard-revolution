@@ -17,10 +17,11 @@
 # CAPITOL 0: STRATEGIE PRODUS (3-TIER) + ARHITECTURA DE LANSARE
 ## 0.1 STRATEGIE: ANGEL LITE -> ANGEL -> REVOLUTION
 - [x] 0.1.1 Adoptare strategie 3-tier (Lite demo -> Angel activat -> Revolution premium via website) + documentatie sincronizata
-- [ ] 0.1.2 Model feature flags/entitlements: isLiteMode / isAngelActivated / isRevolutionActivated (client + backend contract draft)
-- [ ] 0.1.3 Onboarding & upgrade flow: Lite demo -> IAP -> ID verification trigger -> Angel activation
-- [ ] 0.1.4 Upgrade Revolution via website: server activates premium flag in-app (avoid store fees)
-- [ ] 0.1.5 Plan securitate & data mapping: UserID <-> identity_verified <-> biometric templates (encrypted at rest) + audit trail
+- [ ] 0.1.2 Entitlements system (backend stub + app integration): GET /api/user/entitlements + tier/feature gates
+- [ ] 0.1.3 Onboarding & paywall flow (Lite -> Angel) with mock purchase + entitlement refresh
+- [ ] 0.1.4 Identity verification vendor prep (backend model + stub endpoints + notes)
+- [ ] 0.1.5 Revolution website upgrade contract (server flips isRevolutionActivated; app refresh entitlements)
+- [ ] 0.1.6 Security/data mapping plan: UserID <-> identity_verified <-> biometric templates (encrypted at rest) + audit trail
 
 ---
 

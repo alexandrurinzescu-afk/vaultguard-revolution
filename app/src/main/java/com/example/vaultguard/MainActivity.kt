@@ -13,11 +13,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.lifecycleScope
 import com.example.vaultguard.gdpr.BiometricConsentActivity
 import com.example.vaultguard.gdpr.DataDeletionActivity
 import com.example.vaultguard.gdpr.DataExportActivity
@@ -26,13 +30,16 @@ import com.example.vaultguard.gdpr.DisclaimerActivity
 import com.example.vaultguard.gdpr.GdprPrefs
 import com.example.vaultguard.gdpr.PrivacyPolicyActivity
 import com.example.vaultguard.gdpr.RetentionSettingsActivity
+import com.example.vaultguard.tier.EntitlementsRepository
 import com.example.vaultguard.tier.Feature
 import com.example.vaultguard.tier.FeatureGate
 import com.example.vaultguard.tier.TierPrefs
 import com.example.vaultguard.tier.UserEntitlements
 import com.example.vaultguard.tier.UserTier
+import com.example.vaultguard.tier.ui.PaywallActivity
 import com.vaultguard.document.DocumentScannerActivity
 import com.vaultguard.security.biometric.ui.BiometricSettingsActivity
+import kotlinx.coroutines.launch
 
 // OPERAȚIUNEA "CANARUL DIN MINĂ"
 class MainActivity : ComponentActivity() {
@@ -56,12 +63,22 @@ class MainActivity : ComponentActivity() {
         // 2.5.6 best-effort retention pruning (no decryption; deletes encrypted files by age).
         runCatching { DataRetentionManager.applyRetentionIfNeeded(this) }
 
-        // 3-tier product mode:
-        // For now, load from local prefs. Later: load from backend entitlements at login.
-        val userTier = TierPrefs.getUserTier(this)
-        val entitlements = UserEntitlements.fromTier(userTier)
-
         setContent {
+            val repo = remember { EntitlementsRepository() }
+
+            // Load from local prefs immediately (fast), then refresh from backend (best-effort).
+            val tierState = remember { mutableStateOf(TierPrefs.getUserTier(this)) }
+
+            LaunchedEffect(Unit) {
+                // Best-effort: if backend is down, keep local tier.
+                lifecycleScope.launch {
+                    repo.refreshEntitlements(this@MainActivity).onSuccess { tierState.value = it }
+                }
+            }
+
+            val userTier = tierState.value
+            val entitlements = UserEntitlements.fromTier(userTier)
+
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -89,11 +106,10 @@ class MainActivity : ComponentActivity() {
                     // Lite -> Angel upgrade CTA (scaffold).
                     if (userTier == UserTier.LITE) {
                         Button(onClick = {
-                            // Placeholder: real flow will be IAP success -> identity verification -> backend flips entitlements.
-                            TierPrefs.setUserTier(this@MainActivity, UserTier.ANGEL)
-                            recreate()
+                            // Show paywall (mock purchase), then refresh entitlements.
+                            startActivity(Intent(this@MainActivity, PaywallActivity::class.java))
                         }) {
-                            Text("Upgrade to Angel (scaffold)")
+                            Text("Upgrade to Angel (paywall)")
                         }
                         Spacer(modifier = Modifier.height(12.dp))
                     }
@@ -101,12 +117,8 @@ class MainActivity : ComponentActivity() {
                     Button(onClick = {
                         val canUseRealBiometrics = FeatureGate.isFeatureEnabled(entitlements, Feature.REAL_BIOMETRIC_AUTH)
                         if (!canUseRealBiometrics) {
-                            // Demo mode: show consent manager only, but don't enable real biometric operations.
-                            startActivity(
-                                Intent(this@MainActivity, BiometricConsentActivity::class.java)
-                                    .putExtra(BiometricConsentActivity.EXTRA_MODE, BiometricConsentActivity.MODE_MANAGE)
-                                    .putExtra(BiometricConsentActivity.EXTRA_NEXT, BiometricConsentActivity.NEXT_MAIN)
-                            )
+                            // Premium feature gate: show paywall instead of running biometrics in Lite.
+                            startActivity(Intent(this@MainActivity, PaywallActivity::class.java))
                             return@Button
                         }
 
@@ -161,11 +173,12 @@ class MainActivity : ComponentActivity() {
                     if (userTier == UserTier.ANGEL) {
                         Spacer(modifier = Modifier.height(12.dp))
                         Button(onClick = {
-                            // Placeholder: in real app this would deep-link to website upgrade, then refresh entitlements.
-                            TierPrefs.setUserTier(this@MainActivity, UserTier.REVOLUTION)
-                            recreate()
+                            // Placeholder: in real app this will be website upgrade + entitlement refresh.
+                            lifecycleScope.launch {
+                                repo.mockPurchaseRevolution(this@MainActivity).onSuccess { tierState.value = it }
+                            }
                         }) {
-                            Text("Upgrade to Revolution (scaffold)")
+                            Text("Upgrade to Revolution (mock)")
                         }
                     }
                 }
