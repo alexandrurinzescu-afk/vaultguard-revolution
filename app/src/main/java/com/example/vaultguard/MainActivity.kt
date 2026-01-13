@@ -21,9 +21,16 @@ import androidx.compose.ui.unit.dp
 import com.example.vaultguard.gdpr.BiometricConsentActivity
 import com.example.vaultguard.gdpr.DataDeletionActivity
 import com.example.vaultguard.gdpr.DataExportActivity
+import com.example.vaultguard.gdpr.DataRetentionManager
 import com.example.vaultguard.gdpr.DisclaimerActivity
 import com.example.vaultguard.gdpr.GdprPrefs
 import com.example.vaultguard.gdpr.PrivacyPolicyActivity
+import com.example.vaultguard.gdpr.RetentionSettingsActivity
+import com.example.vaultguard.tier.Feature
+import com.example.vaultguard.tier.FeatureGate
+import com.example.vaultguard.tier.TierPrefs
+import com.example.vaultguard.tier.UserEntitlements
+import com.example.vaultguard.tier.UserTier
 import com.vaultguard.document.DocumentScannerActivity
 import com.vaultguard.security.biometric.ui.BiometricSettingsActivity
 
@@ -46,6 +53,14 @@ class MainActivity : ComponentActivity() {
             return
         }
 
+        // 2.5.6 best-effort retention pruning (no decryption; deletes encrypted files by age).
+        runCatching { DataRetentionManager.applyRetentionIfNeeded(this) }
+
+        // 3-tier product mode:
+        // For now, load from local prefs. Later: load from backend entitlements at login.
+        val userTier = TierPrefs.getUserTier(this)
+        val entitlements = UserEntitlements.fromTier(userTier)
+
         setContent {
             Box(
                 modifier = Modifier
@@ -55,12 +70,46 @@ class MainActivity : ComponentActivity() {
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
-                        text = "EU SUNT AICI!\nDACĂ VEZI ASTA, AM PRELUAT CONTROLUL.",
+                        text = "VaultGuard Angel\nMode: $userTier",
                         color = Color.Green,
                         textAlign = TextAlign.Center
                     )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = when (userTier) {
+                            UserTier.LITE -> "Angel Lite: demo / onboarding. Upgrade to unlock real biometric enrollment."
+                            UserTier.ANGEL -> "Angel: activated. Real biometric features are enabled."
+                            UserTier.REVOLUTION -> "Revolution: premium entitlements enabled."
+                        },
+                        color = Color.White,
+                        textAlign = TextAlign.Center
+                    )
                     Spacer(modifier = Modifier.height(16.dp))
+
+                    // Lite -> Angel upgrade CTA (scaffold).
+                    if (userTier == UserTier.LITE) {
+                        Button(onClick = {
+                            // Placeholder: real flow will be IAP success -> identity verification -> backend flips entitlements.
+                            TierPrefs.setUserTier(this@MainActivity, UserTier.ANGEL)
+                            recreate()
+                        }) {
+                            Text("Upgrade to Angel (scaffold)")
+                        }
+                        Spacer(modifier = Modifier.height(12.dp))
+                    }
+
                     Button(onClick = {
+                        val canUseRealBiometrics = FeatureGate.isFeatureEnabled(entitlements, Feature.REAL_BIOMETRIC_AUTH)
+                        if (!canUseRealBiometrics) {
+                            // Demo mode: show consent manager only, but don't enable real biometric operations.
+                            startActivity(
+                                Intent(this@MainActivity, BiometricConsentActivity::class.java)
+                                    .putExtra(BiometricConsentActivity.EXTRA_MODE, BiometricConsentActivity.MODE_MANAGE)
+                                    .putExtra(BiometricConsentActivity.EXTRA_NEXT, BiometricConsentActivity.NEXT_MAIN)
+                            )
+                            return@Button
+                        }
+
                         if (!GdprPrefs.isBiometricConsentAccepted(this@MainActivity)) {
                             startActivity(
                                 Intent(this@MainActivity, BiometricConsentActivity::class.java)
@@ -71,7 +120,7 @@ class MainActivity : ComponentActivity() {
                             startActivity(Intent(this@MainActivity, BiometricSettingsActivity::class.java))
                         }
                     }) {
-                        Text("Open Biometric UI (2.1.2)")
+                        Text(if (userTier == UserTier.LITE) "Biometric demo / consent (Lite)" else "Open Biometric UI (Angel)")
                     }
                     Spacer(modifier = Modifier.height(12.dp))
                     Button(onClick = {
@@ -85,6 +134,7 @@ class MainActivity : ComponentActivity() {
                     }
                     Spacer(modifier = Modifier.height(12.dp))
                     Button(onClick = {
+                        // Documents are available in all tiers, but Lite can be treated as demo-only later.
                         startActivity(Intent(this@MainActivity, DocumentScannerActivity::class.java))
                     }) {
                         Text("Open Document Scanner (2.1.6)")
@@ -100,6 +150,23 @@ class MainActivity : ComponentActivity() {
                         startActivity(Intent(this@MainActivity, DataExportActivity::class.java))
                     }) {
                         Text("Export my data (2.5.5)")
+                    }
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Button(onClick = {
+                        startActivity(Intent(this@MainActivity, RetentionSettingsActivity::class.java))
+                    }) {
+                        Text("Data retention (2.5.6)")
+                    }
+
+                    if (userTier == UserTier.ANGEL) {
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Button(onClick = {
+                            // Placeholder: in real app this would deep-link to website upgrade, then refresh entitlements.
+                            TierPrefs.setUserTier(this@MainActivity, UserTier.REVOLUTION)
+                            recreate()
+                        }) {
+                            Text("Upgrade to Revolution (scaffold)")
+                        }
                     }
                 }
             }

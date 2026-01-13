@@ -97,6 +97,12 @@ class BiometricSettingsActivity : FragmentActivity() {
                     }
 
                     Button(onClick = {
+                        startActivity(Intent(this@BiometricSettingsActivity, BiometricTransparencyActivity::class.java))
+                    }) {
+                        Text("Biometric transparency (2.5.7)")
+                    }
+
+                    Button(onClick = {
                         auth.generateKeyWithBiometricGate(
                             activity = this@BiometricSettingsActivity,
                             alias = Constants.DEFAULT_KEY_ALIAS,

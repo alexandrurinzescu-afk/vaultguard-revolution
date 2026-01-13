@@ -3,6 +3,7 @@ package com.example.vaultguard
 import android.app.Application
 import android.content.pm.ApplicationInfo
 import android.os.Process
+import com.example.vaultguard.gdpr.DataRetentionManager
 import com.vaultguard.security.SecureStorage
 import com.vaultguard.security.hardening.DeviceIntegrity
 import kotlin.system.exitProcess
@@ -23,6 +24,9 @@ class VaultGuardApplication : Application() {
 
         // Seamless key rotation (90 days) + re-encryption migration.
         runCatching { storage.rotateKeysIfNeeded() }
+
+        // 2.5.6 retention scheduler (best-effort; local-only).
+        runCatching { DataRetentionManager.schedulePeriodicRetention(this) }
 
         val isDebuggable = (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
         if (DeviceIntegrity.isCompromised()) {

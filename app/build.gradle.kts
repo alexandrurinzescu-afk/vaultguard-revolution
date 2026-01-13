@@ -104,6 +104,9 @@ dependencies {
     // Biometrics (BiometricPrompt)
     implementation("androidx.biometric:biometric:1.1.0")
 
+    // Background tasks (retention cleanup scheduler)
+    implementation("androidx.work:work-runtime-ktx:2.9.0")
+
     // Tests (basic scaffold)
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test:core-ktx:1.6.1")

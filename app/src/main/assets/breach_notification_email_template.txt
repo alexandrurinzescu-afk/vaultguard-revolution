@@ -1,0 +1,26 @@
+[INCIDENT_ID]
+Subject: Security Incident Notice - VaultGuard Revolution
+
+Hello [USER_NAME],
+
+We are contacting you to inform you of a potential security incident related to your VaultGuard Revolution app data.
+
+Incident ID: [INCIDENT_ID]
+Detected at (UTC): [DETECTED_AT_ISO]
+Summary: [SUMMARY]
+
+What we have done:
+- We recorded the event locally for audit.
+- We recommend reviewing recent activity and rotating any sensitive credentials associated with your device.
+
+What you can do now:
+1) Open the app and review "Biometric Usage Transparency"
+2) Use "Delete all data" if you want to reset the vault
+3) Re-enroll biometrics when you are ready
+
+Contact:
+[CONTACT_EMAIL]
+
+Regards,
+VaultGuard Revolution Security Team
+

@@ -38,8 +38,9 @@ $gp = Get-Content -LiteralPath $gradleProps -Raw -ErrorAction Stop
 $requiredLines = @(
   "org.gradle.daemon=false",
   "org.gradle.workers.max=2",
-  "org.gradle.jvmargs=-Xmx1024m",
-  "kotlin.daemon.jvmargs=-Xmx512m"
+  # We keep this check flexible because jvmargs may be tuned for low-memory systems.
+  "org.gradle.jvmargs=",
+  "kotlin.compiler.execution.strategy=in-process"
 )
 
 $errors = @()

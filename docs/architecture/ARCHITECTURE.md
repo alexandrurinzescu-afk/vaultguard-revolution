@@ -17,6 +17,27 @@ This document reflects what exists today in `AndroidStudioProjects/VaultGuard` (
   - `com.vaultguard.security.biometric.*` (implemented: BiometricPrompt gate + session window)
   - `com.example.vaultguard.enrollment.EnrollmentManager` (currently TODO)
 
+### Product architecture (strategic) — 3-tier in ONE app
+We ship a single app binary that can operate in **3 modes** controlled by entitlements ("feature flags"):
+- **Angel Lite**: demo/onboarding (free). No real hardware biometric capture. Focus: value demo + upgrade CTA.
+- **Angel**: real app mode unlocked after paid gate + identity verification. Enables real biometric enrollment/auth.
+- **Revolution**: premium features unlocked via website purchase (server flips entitlement) to avoid store fees.
+
+#### Entitlements (client model)
+- `isLiteMode`: demo mode (default for new installs until activated)
+- `isAngelActivated`: full biometric features enabled (after purchase + identity verification)
+- `isRevolutionActivated`: premium/enterprise features enabled (after website upgrade)
+
+#### Where this lives in code (Android)
+- Tier model/prefs: `com.example.vaultguard.tier.*`
+- Feature gating helper: `isFeatureEnabled(feature)`
+- UI uses feature flags to hide/show screens and protect sensitive operations.
+
+#### Backend contract (planned)
+At login / token refresh, backend returns entitlements:
+`{ isLiteMode, isAngelActivated, isRevolutionActivated, issuedAt, signature }`
+Client treats entitlements as authoritative (no local "unlock" outside debug builds).
+
 ### Data flow (typical scan / capture loop)
 1. **UI** launches camera preview.
 2. **CameraX ImageAnalysis** produces frames.

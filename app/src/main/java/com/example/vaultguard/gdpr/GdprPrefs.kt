@@ -17,6 +17,7 @@ object GdprPrefs {
     private const val KEY_BIOMETRIC_CONSENT_ACCEPTED = "biometric_consent_accepted"
     private const val KEY_BIOMETRIC_CONSENT_TIMESTAMP_ISO = "biometric_consent_ts_iso"
     private const val KEY_BIOMETRIC_CONSENT_VERSION = "biometric_consent_version"
+    private const val KEY_DATA_RETENTION_DAYS = "data_retention_days"
 
     private const val BIOMETRIC_CONSENT_VERSION = 1
 
@@ -84,6 +85,22 @@ object GdprPrefs {
             context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit().clear().apply()
         }
         runCatching { context.deleteFile("consent_log.txt") }
+    }
+
+    /**
+     * Data retention window in days for local encrypted storage files.
+     * 0 means "forever" (no deletion).
+     */
+    fun dataRetentionDays(context: Context): Int {
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .getInt(KEY_DATA_RETENTION_DAYS, 365)
+    }
+
+    fun setDataRetentionDays(context: Context, days: Int) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putInt(KEY_DATA_RETENTION_DAYS, days.coerceAtLeast(0))
+            .apply()
     }
 }
 

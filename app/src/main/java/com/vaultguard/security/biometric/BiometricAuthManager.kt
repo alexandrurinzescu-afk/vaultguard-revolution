@@ -3,6 +3,7 @@ package com.vaultguard.security.biometric
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.Lifecycle
 import com.vaultguard.security.SecureStorage
 import com.vaultguard.security.biometric.ui.BiometricAuthResult
 import com.vaultguard.security.biometric.ui.BiometricResultHandler
@@ -33,16 +34,37 @@ class BiometricAuthManager(
         prefs.edit().remove(KEY_EXPIRES_AT_MS).apply()
     }
 
+    private fun ensureForeground(activity: FragmentActivity, reason: String): BiometricAuthResult.Error? {
+        // 2.5.7 Guardrail: BiometricPrompt must be shown only from a foreground/visible UI state.
+        // If someone tries to trigger it from background, block immediately.
+        val ok = activity.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
+        return if (ok) {
+            null
+        } else {
+            BiometricAccessLogger.append(
+                context = appContext,
+                event = "BLOCKED_BACKGROUND",
+                reason = reason,
+                details = "lifecycle=${activity.lifecycle.currentState}",
+            )
+            BiometricAuthResult.Error(-3, "Blocked: biometric prompt requires foreground UI.")
+        }
+    }
+
     fun authenticate(
         activity: FragmentActivity,
         reason: String = "Authenticate",
         handler: BiometricResultHandler,
     ) {
+        BiometricAccessLogger.append(appContext, event = "ATTEMPT", reason = reason)
+        ensureForeground(activity, reason)?.let { handler.onResult(it); return }
+
         // Rate limiting + exponential backoff gate.
         val now = System.currentTimeMillis()
         val lockoutUntil = prefs.getLong(KEY_LOCKOUT_UNTIL_MS, 0L)
         if (lockoutUntil > now) {
             val seconds = ((lockoutUntil - now) / 1000L).coerceAtLeast(1L)
+            BiometricAccessLogger.append(appContext, event = "BLOCKED_RATE_LIMIT", reason = reason, details = "seconds=$seconds")
             handler.onResult(BiometricAuthResult.Error(-1, "Rate limited. Try again in ${seconds}s."))
             return
         }
@@ -60,6 +82,7 @@ class BiometricAuthManager(
                 .putLong(KEY_WINDOW_START_MS, newWindowStart)
                 .putInt(KEY_WINDOW_COUNT, newCount)
                 .apply()
+            BiometricAccessLogger.append(appContext, event = "BLOCKED_RATE_LIMIT", reason = reason, details = "backoffMs=$backoffMs")
             handler.onResult(BiometricAuthResult.Error(-1, "Too many attempts. Backing off for ${backoffMs / 1000L}s."))
             return
         }
@@ -89,6 +112,7 @@ class BiometricAuthManager(
                             .putLong(KEY_WINDOW_START_MS, started)
                             .putInt(KEY_WINDOW_COUNT, count)
                             .apply()
+                        BiometricAccessLogger.append(appContext, event = "SUCCESS", reason = reason)
                     }
 
                     is BiometricAuthResult.Cancelled -> {
@@ -97,6 +121,7 @@ class BiometricAuthManager(
                             .putLong(KEY_WINDOW_START_MS, started)
                             .putInt(KEY_WINDOW_COUNT, count)
                             .apply()
+                        BiometricAccessLogger.append(appContext, event = "CANCELLED", reason = reason)
                     }
 
                     is BiometricAuthResult.Failed,
@@ -109,6 +134,7 @@ class BiometricAuthManager(
                         if (fails >= SELF_DESTRUCT_FAILS) {
                             runCatching { SecureStorage(appContext).wipeAllStoredData(deleteKeys = true) }
                             prefs.edit().clear().apply()
+                            BiometricAccessLogger.append(appContext, event = "SELF_DESTRUCT_WIPE", reason = reason, details = "fails=$fails")
                             handler.onResult(BiometricAuthResult.Error(-2, "Vault wiped after $SELF_DESTRUCT_FAILS failed attempts."))
                             return@handlerBlock
                         }
@@ -119,6 +145,12 @@ class BiometricAuthManager(
                             .putLong(KEY_WINDOW_START_MS, started)
                             .putInt(KEY_WINDOW_COUNT, count)
                             .apply()
+                        BiometricAccessLogger.append(
+                            appContext,
+                            event = "FAILED",
+                            reason = reason,
+                            details = "fails=$fails backoffMs=$backoffMs",
+                        )
                     }
                 }
 
@@ -132,6 +164,7 @@ class BiometricAuthManager(
         alias: String,
         handler: (result: BiometricAuthResult) -> Unit,
     ) {
+        ensureForeground(activity, "Generate key")?.let { handler(it); return }
         if (isSessionValid()) {
             keystore.generateKey(alias)
             handler(BiometricAuthResult.Success)
@@ -150,6 +183,7 @@ class BiometricAuthManager(
         alias: String,
         handler: (result: BiometricAuthResult) -> Unit,
     ) {
+        ensureForeground(activity, "Delete key")?.let { handler(it); return }
         if (isSessionValid()) {
             keystore.deleteKey(alias)
             handler(BiometricAuthResult.Success)
@@ -169,6 +203,7 @@ class BiometricAuthManager(
         alias: String,
         handler: (result: BiometricAuthResult, encrypted: ByteArray?, iv: ByteArray?) -> Unit,
     ) {
+        ensureForeground(activity, "Encrypt")?.let { handler(it, null, null); return }
         if (isSessionValid()) {
             val r = keystore.encrypt(plaintext, alias)
             handler(BiometricAuthResult.Success, r.encryptedData, r.iv)
@@ -192,6 +227,7 @@ class BiometricAuthManager(
         alias: String,
         handler: (result: BiometricAuthResult, plaintext: ByteArray?) -> Unit,
     ) {
+        ensureForeground(activity, "Decrypt")?.let { handler(it, null); return }
         if (isSessionValid()) {
             val p = keystore.decrypt(encryptedData, iv, alias)
             handler(BiometricAuthResult.Success, p)

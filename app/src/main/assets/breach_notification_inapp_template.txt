@@ -1,0 +1,15 @@
+SECURITY NOTICE
+
+Incident ID: [INCIDENT_ID]
+Detected at (UTC): [DETECTED_AT_ISO]
+
+Summary:
+[SUMMARY]
+
+Recommended next steps:
+- Review "Biometric Usage Transparency"
+- Consider using "Export my data" (encrypted) for records
+- If you want to reset the vault, use "Delete all data"
+
+Contact: [CONTACT_EMAIL]
+

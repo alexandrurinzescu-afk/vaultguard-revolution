@@ -10,6 +10,12 @@ It also keeps Huifan-related items behind explicit consent and without requiring
 **Legal safety first:** remove or refactor anything likely to trigger App Store rejection.  
 **Huifan alignment:** only use Huifan capabilities already covered by existing certifications (anything else is explicitly flagged as **Needs confirmation**).  
 
+## Strategic update (2026-01-13): 3-tier product in one app
+We adopt a 3-tier launch architecture to reduce cost/risk and maximize conversion:
+- **Angel Lite (store download)**: demo/onboarding mode + upgrade CTA.
+- **Angel (activated)**: unlocked after paid gate + identity verification (entitlements/feature flags).
+- **Revolution (premium)**: website upgrade toggles premium entitlement (avoid store fees).
+
 ---
 
 ## Progress columns (required)
