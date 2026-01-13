@@ -17,7 +17,7 @@
 # CAPITOL 0: STRATEGIE PRODUS (3-TIER) + ARHITECTURA DE LANSARE
 ## 0.1 STRATEGIE: ANGEL LITE -> ANGEL -> REVOLUTION
 - [x] 0.1.1 Adoptare strategie 3-tier (Lite demo -> Angel activat -> Revolution premium via website) + documentatie sincronizata
-- [ ] 0.1.2 Entitlements system (backend stub + app integration): GET /api/user/entitlements + tier/feature gates
+- [x] 0.1.2 Entitlements system (backend stub + app integration): GET /api/user/entitlements + tier/feature gates
 - [ ] 0.1.3 Onboarding & paywall flow (Lite -> Angel) with mock purchase + entitlement refresh
 - [ ] 0.1.4 Identity verification vendor prep (backend model + stub endpoints + notes)
 - [ ] 0.1.5 Revolution website upgrade contract (server flips isRevolutionActivated; app refresh entitlements)
@@ -207,6 +207,7 @@
 2. Checkpoint la fiecare 5 subpuncte (manual, deocamdata):
    - Full project backup .zip
    - Documentatie sincronizata
+
 
 
 
